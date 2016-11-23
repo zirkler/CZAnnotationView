@@ -26,6 +26,8 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
             mEraserPaint.setColor(Color.TRANSPARENT);
             mEraserPaint.setStrokeWidth(100);
             mEraserPaint.setStyle(Paint.Style.STROKE);
+            mEraserPaint.setStrokeCap(Paint.Cap.ROUND);
+            mEraserPaint.setStrokeJoin(Paint.Join.ROUND);
             mEraserPaint.setMaskFilter(null);
             mEraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
             mEraserPaint.setAntiAlias(true);
