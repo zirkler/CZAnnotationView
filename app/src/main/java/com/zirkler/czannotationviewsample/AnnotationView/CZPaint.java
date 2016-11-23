@@ -1,7 +1,6 @@
 package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.graphics.Paint;
-import android.support.annotation.ColorInt;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -29,59 +28,75 @@ public class CZPaint extends Paint implements Serializable {
         super.setTextSize(mTextSize);
     }
 
-    public float getmStrokeWidth() {
-        return mStrokeWidth;
+    @Override
+    public void setAntiAlias(boolean aa) {
+        super.setAntiAlias(aa);
+        mAntiAlias = true;
     }
 
-    public void setmStrokeWidth(float mStrokeWidth) {
-        this.mStrokeWidth = mStrokeWidth;
+    @Override
+    public int getColor() {
+        return super.getColor();
     }
 
-    public Cap getmStrokeCap() {
-        return mStrokeCap;
+    @Override
+    public void setColor(int color) {
+        super.setColor(color);
+        mColor = color;
     }
 
-    public void setmStrokeCap(Cap mStrokeCap) {
-        this.mStrokeCap = mStrokeCap;
+    @Override
+    public Style getStyle() {
+        return super.getStyle();
     }
 
-    public Join getmStrokeJoin() {
-        return mStrokeJoin;
+    @Override
+    public void setStyle(Style style) {
+        mStyle = style;
+        super.setStyle(style);
     }
 
-    public void setmStrokeJoin(Join mStrokeJoin) {
-        this.mStrokeJoin = mStrokeJoin;
+    @Override
+    public Join getStrokeJoin() {
+        return super.getStrokeJoin();
     }
 
-    public Style getmStyle() {
-        return mStyle;
+    @Override
+    public void setStrokeJoin(Join join) {
+        super.setStrokeJoin(join);
+        mStrokeJoin = join;
     }
 
-    public void setmStyle(Style mStyle) {
-        this.mStyle = mStyle;
+    @Override
+    public Cap getStrokeCap() {
+        return super.getStrokeCap();
     }
 
-    public int getmColor() {
-        return mColor;
+    @Override
+    public void setStrokeCap(Cap cap) {
+        super.setStrokeCap(cap);
+        mStrokeCap = cap;
     }
 
-    public void setmColor(@ColorInt int mColor) {
-        this.mColor = mColor;
+    @Override
+    public float getStrokeWidth() {
+        return super.getStrokeWidth();
     }
 
-    public boolean ismAntiAlias() {
-        return mAntiAlias;
+    @Override
+    public void setStrokeWidth(float width) {
+        super.setStrokeWidth(width);
+        mStrokeWidth = width;
     }
 
-    public void setmAntiAlias(boolean mAntiAlias) {
-        this.mAntiAlias = mAntiAlias;
+    @Override
+    public float getTextSize() {
+        return super.getTextSize();
     }
 
-    public float getmTextSize() {
-        return mTextSize;
-    }
-
-    public void setmTextSize(float mTextSize) {
-        this.mTextSize = mTextSize;
+    @Override
+    public void setTextSize(float textSize) {
+        super.setTextSize(textSize);
+        mTextSize = textSize;
     }
 }

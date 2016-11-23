@@ -1,6 +1,7 @@
 package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.graphics.Path;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -10,13 +11,16 @@ import java.util.List;
 
 public class CZPath extends Path implements Serializable {
  
-    private List<Action> actions = new LinkedList<>();
+    private List<PathAction> actions = new LinkedList<>();
  
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
- 
-        for (Action action : actions) {
-            action.perform(this);
+
+        for (int i = 0; i < actions.size(); i++) {
+            Log.i("asd", String.valueOf(i));
+            PathAction a = actions.get(i);
+            actions.remove(a);
+            a.perform(this);
         }
     }
  
@@ -38,11 +42,11 @@ public class CZPath extends Path implements Serializable {
         super.quadTo(x1, y1, x2, y2);
     }
  
-    private interface Action extends Serializable {
+    private interface PathAction extends Serializable {
         void perform(Path path);
     }
  
-    private static final class Move implements Action {
+    private static final class Move implements PathAction {
  
         private final float x, y;
  
@@ -57,7 +61,7 @@ public class CZPath extends Path implements Serializable {
         }
     }
  
-    private static final class Line implements Action {
+    private static final class Line implements PathAction {
  
         private final float x, y;
  
@@ -72,7 +76,7 @@ public class CZPath extends Path implements Serializable {
         }
     }
  
-    private static final class Quad implements Action {
+    private static final class Quad implements PathAction {
  
         private final float x1, y1, x2, y2;
  
