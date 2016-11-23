@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 
@@ -62,19 +63,17 @@ public class CZPhotoView extends PhotoView {
 
     /**
      * This method performs the actual drawing of the users drawn stuff.
-     * @param canvas The canvas of the image / photoview.
+     * @param canvas The canvas of the imageview / photoview.
      */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        cacheCanvas.drawColor(Color.TRANSPARENT);
-
+        // clear the cache canvas
+        cacheCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
         // Here happens all the scaling and translation MAGIC!
         canvas.concat(mConcatMatrix);
-
-
 
         // Draw all the already drawn stuff to the canvas.
         for (int i = 0; i < mDrawnActions.size(); i++) {
@@ -95,32 +94,24 @@ public class CZPhotoView extends PhotoView {
     /**
      * Undoes the last drawn thing on the canvas.
      */
-    public boolean undo() {
+    public void undo() {
         if (mDrawnActions.size() > 0) {
             CZIDrawingAction lastAction = mDrawnActions.get(mDrawnActions.size() - 1);
             mDrawnActions.remove(lastAction);
             mRedoActions.add(lastAction);
             invalidate();
-            return true;
-        } else {
-            // Nothing to undo
-            return false;
         }
     }
 
     /**
      * Redos the last undone action.
      */
-    public boolean redo() {
+    public void redo() {
         if (mRedoActions.size() > 0) {
             CZIDrawingAction lastUndoneAction = mRedoActions.get(mRedoActions.size() - 1);
             mRedoActions.remove(lastUndoneAction);
             mDrawnActions.add(lastUndoneAction);
             invalidate();
-            return true;
-        } else {
-            // Nothing to redo
-            return false;
         }
     }
 
@@ -148,5 +139,13 @@ public class CZPhotoView extends PhotoView {
     public void userCanceldDrawing() {
         mCurrentDrawingAction = mCurrentDrawingAction.createInstance(getContext(), null);
         invalidate();
+    }
+
+    public List<CZIDrawingAction> getDrawnActions() {
+        return mDrawnActions;
+    }
+
+    public void setmDrawnActions(List<CZIDrawingAction> mDrawnActions) {
+        this.mDrawnActions = mDrawnActions;
     }
 }
