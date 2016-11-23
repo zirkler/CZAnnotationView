@@ -45,15 +45,14 @@ public class CZAttacher extends PhotoViewAttacher {
             // User starts drawing
             if (isOneFinger) {
                 isDrawingNow = true;
-                mPhotoView.setmCurrentDrawingAction(new CZDrawingActionFreehand(mContext, null));
+                mPhotoView.setmCurrentDrawingAction(mPhotoView.getmCurrentDrawingAction().createInstance(mContext, null));
                 mPhotoView.getmCurrentDrawingAction().touchStart(touchX, touchY);
             }
 
             // User added another finger
             if (!isOneFinger) {
                 isDrawingNow = false;
-                mPhotoView.setmCurrentDrawingAction(null);
-                mPhotoView.invalidate();
+                mPhotoView.userCanceldDrawing();
             }
         }
 
@@ -68,8 +67,7 @@ public class CZAttacher extends PhotoViewAttacher {
             // User moved finger while there is more then one finger on the screen
             if (!isOneFinger) {
                 isDrawingNow = false;
-                mPhotoView.setmCurrentDrawingAction(null);
-                mPhotoView.invalidate();
+                mPhotoView.userCanceldDrawing();
             }
         }
 

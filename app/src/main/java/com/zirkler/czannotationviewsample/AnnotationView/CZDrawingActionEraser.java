@@ -4,32 +4,33 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 
-import java.io.Serializable;
+public class CZDrawingActionEraser implements CZIDrawingAction {
 
-public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
-
+    CZPath mPath;
+    Context mContext;
+    CZPaint mEraserPaint;
     float mX;
     float mY;
-    private Context mContext;
-    private CZPaint mPaint;
-    private CZPath mPath;
 
-    public CZDrawingActionFreehand(Context context, CZPaint paint) {
+    public CZDrawingActionEraser(Context context, CZPaint paint) {
         mContext = context;
         mPath = new CZPath();
 
-        // If there isn't a paint provided, create a default paint.
         if (paint == null) {
-            mPaint = new CZPaint();
-            mPaint.setAntiAlias(true);
-            mPaint.setColor(Color.GREEN);
-            mPaint.setStyle(Paint.Style.STROKE);
-            mPaint.setStrokeJoin(Paint.Join.ROUND);
-            mPaint.setStrokeCap(Paint.Cap.ROUND);
-            mPaint.setStrokeWidth(10);
+            mEraserPaint = new CZPaint();
+            mEraserPaint.setAlpha(0xff);
+            mEraserPaint.setColor(Color.TRANSPARENT);
+            mEraserPaint.setStrokeWidth(100);
+            mEraserPaint.setStyle(Paint.Style.STROKE);
+            mEraserPaint.setMaskFilter(null);
+            mEraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            mEraserPaint.setAntiAlias(true);
         } else {
-            mPaint = paint;
+            mEraserPaint = paint;
         }
     }
 
@@ -42,32 +43,30 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
 
     @Override
     public void touchMove(float x, float y) {
-        mPath.quadTo(mX,
-                     mY,
-                     (x + mX) / 2,
-                     (y + mY) / 2);
+        mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
+        mPath.addCircle(x, y , 100, Path.Direction.CW);
         mX = x;
         mY = y;
     }
 
     @Override
     public void touchUp(float x, float y) {
-        mPath.lineTo(x, y);
+        mPath.lineTo(mX, mY);
     }
 
     @Override
     public CZPath getPath() {
-        return mPath;
-    }
-
-    @Override
-    public CZPaint getPaint() {
         return null;
     }
 
     @Override
+    public CZPaint getPaint() {
+        return mEraserPaint;
+    }
+
+    @Override
     public void setPaint(CZPaint paint) {
-        mPaint = paint;
+        mEraserPaint = paint;
     }
 
     @Override
@@ -82,11 +81,12 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawPath(mPath, mPaint);
+        canvas.drawPath(mPath, mEraserPaint);
+
     }
 
     @Override
     public CZIDrawingAction createInstance(Context context, CZPaint paint) {
-        return new CZDrawingActionFreehand(context, paint);
+        return new CZDrawingActionEraser(context, paint);
     }
 }

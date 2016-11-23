@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">>
+    <item
+        android:id="@+id/empty"
+        android:icon="@drawable/ic_more_vertical"
+        android:orderInCategory="101"
+        android:title="options"
+        app:showAsAction="always">
+
+        <menu>
+            <item
+                android:id="@+id/action_freehand_drawing"
+                android:title="Freehand Drawing"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/action_eraser"
+                android:title="Eraser"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/action_pick_background"
+                android:title="Pick Background"
+                app:showAsAction="ifRoom" />
+
+            <item
+                android:id="@+id/action_measurement_line"
+                android:title="Measurement Line"
+                app:showAsAction="ifRoom" />
+
+            <item
+                android:id="@+id/action_serialize"
+                android:title="Serialize"
+                app:showAsAction="ifRoom" />
+        </menu>
+
+    </item>
+</menu>
