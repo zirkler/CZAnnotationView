@@ -11,19 +11,17 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
 
     float mX;
     float mY;
-    private Context mContext;
     private CZPaint mPaint;
     private CZPath mPath;
 
     public CZDrawingActionFreehand(Context context, CZPaint paint) {
-        mContext = context;
         mPath = new CZPath();
 
         // If there isn't a paint provided, create a default paint.
         if (paint == null) {
             mPaint = new CZPaint();
             mPaint.setAntiAlias(true);
-            mPaint.setColor(Color.GREEN);
+            mPaint.setColor(Color.RED);
             mPaint.setStyle(Paint.Style.STROKE);
             mPaint.setStrokeJoin(Paint.Join.ROUND);
             mPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -62,7 +60,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
 
     @Override
     public CZPaint getPaint() {
-        return null;
+        return mPaint;
     }
 
     @Override
@@ -78,6 +76,11 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     @Override
     public boolean checkBounds(float x, float y) {
         return false;
+    }
+
+    @Override
+    public String serialize() {
+        return "";
     }
 
     @Override

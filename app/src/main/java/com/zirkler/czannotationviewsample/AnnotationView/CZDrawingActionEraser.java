@@ -11,13 +11,11 @@ import android.graphics.PorterDuffXfermode;
 public class CZDrawingActionEraser implements CZIDrawingAction {
 
     CZPath mPath;
-    Context mContext;
     CZPaint mEraserPaint;
     float mX;
     float mY;
 
     public CZDrawingActionEraser(Context context, CZPaint paint) {
-        mContext = context;
         mPath = new CZPath();
 
         if (paint == null) {
@@ -58,7 +56,7 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
 
     @Override
     public CZPath getPath() {
-        return null;
+        return mPath;
     }
 
     @Override
@@ -79,6 +77,11 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     @Override
     public boolean checkBounds(float x, float y) {
         return false;
+    }
+
+    @Override
+    public String serialize() {
+        return "yo";
     }
 
     @Override
