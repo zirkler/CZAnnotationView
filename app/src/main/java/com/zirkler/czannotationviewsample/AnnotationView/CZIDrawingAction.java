@@ -3,7 +3,9 @@ package com.zirkler.czannotationviewsample.AnnotationView;
 import android.content.Context;
 import android.graphics.Canvas;
 
-public interface CZIDrawingAction {
+import java.io.Serializable;
+
+public interface CZIDrawingAction extends Serializable {
     public void touchStart(float x, float y);
 
     public void touchMove(float x, float y);
@@ -23,5 +25,4 @@ public interface CZIDrawingAction {
     public boolean isErasable();
 
     public boolean checkBounds(float x, float y);
-
 }
