@@ -1,7 +1,6 @@
 package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,19 +26,11 @@ public class CZAttacher extends PhotoViewAttacher {
 
         boolean isOneFinger = event.getPointerCount() == 1;
 
-        // Since we performed scaling and dragging, we cannot simply use the screens touch-coordinates for our events,
-        // instead we reconstruct the coordinates in respect to the performed matrix operations (translation and scaling).
-        float[] mv = new float[9];
-        Matrix suppMatrix = new Matrix();
-        super.getSuppMatrix(suppMatrix);
-        suppMatrix.getValues(mv);
-        float transX = mv[Matrix.MTRANS_X] * -1;
-        float transY = mv[Matrix.MTRANS_Y] * -1;
-        float scaleX = mv[Matrix.MSCALE_X];
-        float scaleY = mv[Matrix.MSCALE_Y];
-        float touchX = Math.abs((int) ((event.getX() + transX) / scaleX));
-        float touchY = Math.abs((int) ((event.getY() + transY) / scaleY));
-
+        // Here map the pixel values of coordinate to a image relative representation.
+        // pX/Y contains values between 0 and 1, if the user touches inside the image.
+        // pX = 1 if the touches on the most right pixel of the image,
+        // pX = 0.0...01 if the user touches the most left pixel in the image.
+        // Same for pY, pY = 1 is bottom of the image, pY = 0 is top of the image.
         RectF displayRect = getDisplayRect();
         float pX = (event.getX() - getDisplayRect().left) / displayRect.width();
         float pY = (event.getY() - getDisplayRect().top) / displayRect.height();
@@ -85,9 +76,8 @@ public class CZAttacher extends PhotoViewAttacher {
             isDrawingNow = false;
         }
 
+        mPhotoView.invalidate();
         super.onTouch(v, event);
-
-        mPhotoView.invalidate(); // TODO: check if we actually have to invalidate at this time...
         return true;
     }
 

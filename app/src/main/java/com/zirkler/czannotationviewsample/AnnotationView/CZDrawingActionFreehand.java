@@ -17,7 +17,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     float mX;
     float mY;
     private CZPaint mPaint;
-    private List<ImageRelCoords> mCoords = new ArrayList<>();
+    private List<CZImageRelCoords> mCoords = new ArrayList<>();
 
     public CZDrawingActionFreehand(Context context, CZPaint paint) {
         mCoords = new ArrayList<>();
@@ -40,7 +40,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     public void touchStart(float x, float y) {
         mX = x;
         mY = y;
-        mCoords.add(new ImageRelCoords(x, y));
+        mCoords.add(new CZImageRelCoords(x, y));
     }
 
     @Override
@@ -50,14 +50,14 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
                      (x + mX) / 2,
                      (y + mY) / 2); */
         Log.i("asd", String.valueOf(x) + " " + String.valueOf(y));
-        mCoords.add(new ImageRelCoords(x, y));
+        mCoords.add(new CZImageRelCoords(x, y));
         mX = x;
         mY = y;
     }
 
     @Override
     public void touchUp(float x, float y) {
-        mCoords.add(new ImageRelCoords(x, y));
+        mCoords.add(new CZImageRelCoords(x, y));
         //mPath.lineTo(x, y);
     }
 
@@ -102,7 +102,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     }
 
     @Override
-    public List<ImageRelCoords> getCoords() {
+    public List<CZImageRelCoords> getCoords() {
         return mCoords;
     }
 }

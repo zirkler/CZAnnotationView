@@ -20,7 +20,7 @@ public interface CZIDrawingAction extends Serializable {
 
     public CZIDrawingAction createInstance(Context context, CZPaint paint);
 
-    public List<ImageRelCoords> getCoords();
+    public List<CZImageRelCoords> getCoords();
 
     public CZPaint getPaint();
 

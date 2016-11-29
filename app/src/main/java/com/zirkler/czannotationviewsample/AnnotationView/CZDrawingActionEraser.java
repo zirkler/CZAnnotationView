@@ -18,7 +18,7 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     CZPaint mEraserPaint;
     float mX;
     float mY;
-    private List<ImageRelCoords> mCoords = new ArrayList<>();
+    private List<CZImageRelCoords> mCoords = new ArrayList<>();
 
     public CZDrawingActionEraser(Context context, CZPaint paint) {
         mPath = new CZPath();
@@ -44,21 +44,21 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
         mX = x;
         mY = y;
         // mPath.moveTo(x, y);
-        mCoords.add(new ImageRelCoords(x, y));
+        mCoords.add(new CZImageRelCoords(x, y));
     }
 
     @Override
     public void touchMove(float x, float y) {
         mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
         mPath.addCircle(x, y , 100, Path.Direction.CW);
-        mCoords.add(new ImageRelCoords(x, y));
+        mCoords.add(new CZImageRelCoords(x, y));
         mX = x;
         mY = y;
     }
 
     @Override
     public void touchUp(float x, float y) {
-        mCoords.add(new ImageRelCoords(x, y));
+        mCoords.add(new CZImageRelCoords(x, y));
     }
 
 
@@ -105,7 +105,7 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
-    public List<ImageRelCoords> getCoords() {
+    public List<CZImageRelCoords> getCoords() {
         return mCoords;
     }
 }
