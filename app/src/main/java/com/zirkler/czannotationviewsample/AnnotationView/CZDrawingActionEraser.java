@@ -80,11 +80,6 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
-    public CZPath getPath() {
-        return mPath;
-    }
-
-    @Override
     public CZPaint getPaint() {
         return mEraserPaint;
     }
@@ -107,5 +102,10 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     @Override
     public CZIDrawingAction createInstance(Context context, CZPaint paint) {
         return new CZDrawingActionEraser(context, paint);
+    }
+
+    @Override
+    public List<ImageRelCoords> getCoords() {
+        return mCoords;
     }
 }

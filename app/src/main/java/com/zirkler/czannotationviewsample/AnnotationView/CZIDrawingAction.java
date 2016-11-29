@@ -5,20 +5,22 @@ import android.graphics.Canvas;
 import android.graphics.RectF;
 
 import java.io.Serializable;
+import java.util.List;
 
 public interface CZIDrawingAction extends Serializable {
+
+
     public void touchStart(float x, float y);
 
     public void touchMove(float x, float y);
 
     public void touchUp(float x, float y);
 
-
     public void draw(Canvas canvas, RectF displayRect);
 
     public CZIDrawingAction createInstance(Context context, CZPaint paint);
 
-    public CZPath getPath();
+    public List<ImageRelCoords> getCoords();
 
     public CZPaint getPaint();
 

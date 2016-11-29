@@ -69,15 +69,6 @@ public class MainActivity extends AppCompatActivity {
                     float prevLeftOffset = savedInstanceState.getFloat(PREV_DISPLAY_RECT_LEFT);
                     float prevTopOffset = savedInstanceState.getFloat(PREV_DISPLAY_RECT_TOP);
 
-                    if (prevLeftOffset != mInitialDisplayRectLeft || prevTopOffset != mInitialDisplayRectTop) {
-                        // Correct the x and y values of the drawnActions
-                        for (int i = 0; i < drawnActions.size(); i++) {
-                            CZIDrawingAction currAction = drawnActions.get(i);
-                            currAction.getPath().offset(prevLeftOffset, 0);
-                        }
-                    }
-
-
                     mPhotoView.setmDrawnActions(drawnActions);
                     mPhotoView.invalidate();
                 }

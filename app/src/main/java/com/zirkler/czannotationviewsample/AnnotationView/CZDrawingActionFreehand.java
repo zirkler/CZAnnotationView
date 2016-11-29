@@ -17,11 +17,10 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     float mX;
     float mY;
     private CZPaint mPaint;
-    private CZPath mPath;
     private List<ImageRelCoords> mCoords = new ArrayList<>();
 
     public CZDrawingActionFreehand(Context context, CZPaint paint) {
-        mPath = new CZPath();
+        mCoords = new ArrayList<>();
 
         // If there isn't a paint provided, create a default paint.
         if (paint == null) {
@@ -41,8 +40,6 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     public void touchStart(float x, float y) {
         mX = x;
         mY = y;
-        // mPath.moveTo(x, y);
-
         mCoords.add(new ImageRelCoords(x, y));
     }
 
@@ -62,11 +59,6 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     public void touchUp(float x, float y) {
         mCoords.add(new ImageRelCoords(x, y));
         //mPath.lineTo(x, y);
-    }
-
-    @Override
-    public CZPath getPath() {
-        return mPath;
     }
 
     @Override
@@ -107,5 +99,10 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     @Override
     public CZIDrawingAction createInstance(Context context, CZPaint paint) {
         return new CZDrawingActionFreehand(context, paint);
+    }
+
+    @Override
+    public List<ImageRelCoords> getCoords() {
+        return mCoords;
     }
 }
