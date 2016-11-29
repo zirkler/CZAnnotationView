@@ -4,8 +4,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.RectF;
+import android.util.Log;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
 
@@ -13,6 +18,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     float mY;
     private CZPaint mPaint;
     private CZPath mPath;
+    private List<ImageRelCoords> mCoords = new ArrayList<>();
 
     public CZDrawingActionFreehand(Context context, CZPaint paint) {
         mPath = new CZPath();
@@ -35,22 +41,27 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     public void touchStart(float x, float y) {
         mX = x;
         mY = y;
-        mPath.moveTo(x, y);
+        // mPath.moveTo(x, y);
+
+        mCoords.add(new ImageRelCoords(x, y));
     }
 
     @Override
     public void touchMove(float x, float y) {
-        mPath.quadTo(mX,
+        /*mPath.quadTo(mX,
                      mY,
                      (x + mX) / 2,
-                     (y + mY) / 2);
+                     (y + mY) / 2); */
+        Log.i("asd", String.valueOf(x) + " " + String.valueOf(y));
+        mCoords.add(new ImageRelCoords(x, y));
         mX = x;
         mY = y;
     }
 
     @Override
     public void touchUp(float x, float y) {
-        mPath.lineTo(x, y);
+        mCoords.add(new ImageRelCoords(x, y));
+        //mPath.lineTo(x, y);
     }
 
     @Override
@@ -79,13 +90,18 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     }
 
     @Override
-    public String serialize() {
-        return "";
-    }
+    public void draw(Canvas canvas, RectF displayRect) {
+        Path path = new Path();
+        if (mCoords != null && mCoords.size() > 0) {
+            path.moveTo(mCoords.get(0).getX() * displayRect.width() + displayRect.left,
+                        mCoords.get(0).getY() * displayRect.height() + displayRect.top);
 
-    @Override
-    public void draw(Canvas canvas) {
-        canvas.drawPath(mPath, mPaint);
+            for (int i = 1; i < mCoords.size(); i++) {
+                path.lineTo(mCoords.get(i).getX() * displayRect.width() + displayRect.left,
+                        mCoords.get(i).getY() * displayRect.height() + displayRect.top);
+            }
+            canvas.drawPath(path, mPaint);
+        }
     }
 
     @Override

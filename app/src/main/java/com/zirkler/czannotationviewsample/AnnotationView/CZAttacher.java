@@ -2,6 +2,7 @@ package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.content.Context;
 import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -39,6 +40,10 @@ public class CZAttacher extends PhotoViewAttacher {
         float touchX = Math.abs((int) ((event.getX() + transX) / scaleX));
         float touchY = Math.abs((int) ((event.getY() + transY) / scaleY));
 
+        RectF displayRect = getDisplayRect();
+        float pX = (event.getX() - getDisplayRect().left) / displayRect.width();
+        float pY = (event.getY() - getDisplayRect().top) / displayRect.height();
+
         // User lays a finger on the screen
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
@@ -46,7 +51,7 @@ public class CZAttacher extends PhotoViewAttacher {
             if (isOneFinger) {
                 isDrawingNow = true;
                 mPhotoView.setmCurrentDrawingAction(mPhotoView.getmCurrentDrawingAction().createInstance(mContext, null));
-                mPhotoView.getmCurrentDrawingAction().touchStart(touchX, touchY);
+                mPhotoView.getmCurrentDrawingAction().touchStart(pX, pY);
             }
 
             // User added another finger
@@ -61,7 +66,7 @@ public class CZAttacher extends PhotoViewAttacher {
 
             // User moved his drawing finger
             if (isOneFinger && isDrawingNow) {
-                mPhotoView.getmCurrentDrawingAction().touchMove(touchX, touchY);
+                mPhotoView.getmCurrentDrawingAction().touchMove(pX, pY);
             }
 
             // User moved finger while there is more then one finger on the screen
@@ -73,7 +78,7 @@ public class CZAttacher extends PhotoViewAttacher {
 
         // User finished drawing
         if (event.getAction() == MotionEvent.ACTION_UP && isOneFinger && isDrawingNow) {
-            mPhotoView.getmCurrentDrawingAction().touchUp(touchX, touchY);
+            mPhotoView.getmCurrentDrawingAction().touchUp(pX, pY);
             mPhotoView.userFinishedDrawing();
 
             super.cancelFling();

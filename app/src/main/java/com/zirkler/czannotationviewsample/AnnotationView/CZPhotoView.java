@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 
@@ -23,6 +24,7 @@ public class CZPhotoView extends PhotoView {
     private Canvas cacheCanvas;
     private Bitmap foreground;
     private Paint mBitmapPaint;
+    private RectF initialDisplayRect;
 
     public CZPhotoView(Context context) {
         super(context);
@@ -56,6 +58,7 @@ public class CZPhotoView extends PhotoView {
 
                 cacheCanvas = new Canvas();
                 cacheCanvas.setBitmap(foreground);
+                initialDisplayRect = getDisplayRect();
             }
         });
     }
@@ -77,12 +80,12 @@ public class CZPhotoView extends PhotoView {
 
         // Draw all the already drawn stuff to the canvas.
         for (int i = 0; i < mDrawnActions.size(); i++) {
-            mDrawnActions.get(i).draw(cacheCanvas);
+            mDrawnActions.get(i).draw(cacheCanvas, initialDisplayRect);
         }
 
         // Draw the path the user is currently drawing.
         if (mCurrentDrawingAction != null) {
-            mCurrentDrawingAction.draw(cacheCanvas);
+            mCurrentDrawingAction.draw(cacheCanvas, initialDisplayRect);
         }
 
         Paint drawBitmapPaint = new Paint();

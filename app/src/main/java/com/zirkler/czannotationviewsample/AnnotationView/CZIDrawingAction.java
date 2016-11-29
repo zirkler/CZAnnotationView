@@ -2,6 +2,7 @@ package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.RectF;
 
 import java.io.Serializable;
 
@@ -12,7 +13,8 @@ public interface CZIDrawingAction extends Serializable {
 
     public void touchUp(float x, float y);
 
-    public void draw(Canvas canvas);
+
+    public void draw(Canvas canvas, RectF displayRect);
 
     public CZIDrawingAction createInstance(Context context, CZPaint paint);
 
