@@ -50,7 +50,7 @@ public class CZAttacher extends PhotoViewAttacher {
             // User starts drawing
             if (isOneFinger) {
                 isDrawingNow = true;
-                mPhotoView.setmCurrentDrawingAction(mPhotoView.getmCurrentDrawingAction().createInstance(mContext, null));
+                mPhotoView.setCurrentDrawingAction(mPhotoView.getmCurrentDrawingAction().createInstance(mContext, null));
                 mPhotoView.getmCurrentDrawingAction().touchStart(pX, pY);
             }
 

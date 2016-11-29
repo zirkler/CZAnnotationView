@@ -8,14 +8,20 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class CZPhotoView extends PhotoView {
+
+    private static final String DRAWN_ACTIONS = "drawn_actions";
+    private static final String SUPER_STATE = "super_state";
 
     Matrix mConcatMatrix = new Matrix();
     private CZIDrawingAction mCurrentDrawingAction;
@@ -42,7 +48,6 @@ public class CZPhotoView extends PhotoView {
     }
 
     private void setup() {
-
         mBitmapPaint = new Paint();
         mBitmapPaint.setAntiAlias(true);
 
@@ -63,6 +68,38 @@ public class CZPhotoView extends PhotoView {
         });
     }
 
+    /**
+     * Saves the instance state, so the library user does not have to implement this himself.
+     * @return Parceable state.
+     */
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle outState = new Bundle();
+        outState.putParcelable(SUPER_STATE, super.onSaveInstanceState());
+        outState.putSerializable(DRAWN_ACTIONS, (Serializable) mDrawnActions);
+        return outState;
+    }
+
+
+    /**
+     * Restores the instance state, so the library user does not have to implement this himself.
+     * @param state
+     */
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Parcelable) {
+            Bundle inState = (Bundle) state;
+
+            if (inState != null && inState.containsKey(DRAWN_ACTIONS)) {
+                List<CZIDrawingAction> drawnActions = (List<CZIDrawingAction>)inState.getSerializable(DRAWN_ACTIONS);
+                this.mDrawnActions = drawnActions;
+                invalidate();
+            }
+
+            state = inState.getParcelable(SUPER_STATE);
+            super.onRestoreInstanceState(state);
+        }
+    }
 
     /**
      * This method performs the actual drawing of the users drawn stuff.
@@ -122,12 +159,12 @@ public class CZPhotoView extends PhotoView {
         return mCurrentDrawingAction;
     }
 
-    public void setmCurrentDrawingAction(CZIDrawingAction mCurrentDrawingAction) {
+    public void setCurrentDrawingAction(CZIDrawingAction mCurrentDrawingAction) {
         this.mCurrentDrawingAction = mCurrentDrawingAction;
     }
 
     /**
-     * Gets called from the CZAttacher.
+     * Gets called from the CZAttacher. Adds the currently drawn item and clears the redo stack.
      */
     public void userFinishedDrawing() {
         mDrawnActions.add(mCurrentDrawingAction);
