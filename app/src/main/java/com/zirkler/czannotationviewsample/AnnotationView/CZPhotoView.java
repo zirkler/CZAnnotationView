@@ -2,17 +2,24 @@ package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +27,12 @@ import java.util.List;
 
 public class CZPhotoView extends PhotoView {
 
+    private static final String INSTANCE_STATE = "cz_annotationview_instance_state";
     private static final String DRAWN_ACTIONS = "drawn_actions";
     private static final String SUPER_STATE = "super_state";
+    private static final String BACKGROUND_TEMP_FILE_PATH = "czannotation_bg_tmp";
+    private static final String BACKGROUND_TEMP_FILE_PATH_KEY = "bg_temp_";
+    transient public CZAttacher attacher;
 
     Matrix mConcatMatrix = new Matrix();
     private CZIDrawingAction mCurrentDrawingAction;
@@ -31,25 +42,31 @@ public class CZPhotoView extends PhotoView {
     private Bitmap mForeground;
     private Paint mBitmapPaint;
     private RectF mInitialDisplayRect;
-
+    private String mTempBackgroundImagePath;
+    transient private Context mContext;
     private CZIItemLongClickListener mItemClickListener;
 
     public CZPhotoView(Context context) {
         super(context);
-        setup();
+        setup(context);
     }
 
     public CZPhotoView(Context context, AttributeSet attr) {
         super(context, attr);
-        setup();
+        setup(context);
     }
 
     public CZPhotoView(Context context, AttributeSet attr, int defStyle) {
         super(context, attr, defStyle);
-        setup();
+        setup(context);
     }
 
-    private void setup() {
+    public String getmTempBackgroundImagePath() {
+        return mTempBackgroundImagePath;
+    }
+
+    private void setup(Context context) {
+        mContext = context;
         mBitmapPaint = new Paint();
         mBitmapPaint.setAntiAlias(true);
 
@@ -77,8 +94,34 @@ public class CZPhotoView extends PhotoView {
     @Override
     protected Parcelable onSaveInstanceState() {
         Bundle outState = new Bundle();
+
         outState.putParcelable(SUPER_STATE, super.onSaveInstanceState());
         outState.putSerializable(DRAWN_ACTIONS, (Serializable) mDrawnActions);
+        outState.putString(BACKGROUND_TEMP_FILE_PATH_KEY, mTempBackgroundImagePath);
+
+        // Save the background image to temp directory.
+        /*
+        FileOutputStream outputStream = null;
+        try {
+            File outputDir = mContext.getCacheDir();
+            File outputFile = File.createTempFile(BACKGROUND_TEMP_FILE_PATH, "png", outputDir);
+            outputStream = new FileOutputStream(outputFile);
+            Bitmap backgroundBitmap = ((BitmapDrawable) getDrawable()).getBitmap();
+            backgroundBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            mTempBackgroundImagePath = outputFile.getPath();
+            outState.putString(BACKGROUND_TEMP_FILE_PATH_KEY, mTempBackgroundImagePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }*/
+
         return outState;
     }
 
@@ -92,10 +135,18 @@ public class CZPhotoView extends PhotoView {
         if (state instanceof Parcelable) {
             Bundle inState = (Bundle) state;
 
+            // Restore drawn items
             if (inState != null && inState.containsKey(DRAWN_ACTIONS)) {
                 List<CZIDrawingAction> drawnActions = (List<CZIDrawingAction>)inState.getSerializable(DRAWN_ACTIONS);
                 this.mDrawnActions = drawnActions;
                 invalidate();
+
+                /*BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_4444;
+                String bitmapPath = inState.getString(BACKGROUND_TEMP_FILE_PATH_KEY);
+                Bitmap bitmap = BitmapFactory.decodeFile(bitmapPath, options);
+                setImageBitmap(bitmap);
+                attacher.update();*/
             }
 
             state = inState.getParcelable(SUPER_STATE);
@@ -215,5 +266,62 @@ public class CZPhotoView extends PhotoView {
      */
     public RectF getmInitialDisplayRect() {
         return mInitialDisplayRect;
+    }
+
+
+    public void saveToFile(Context context, String filename) {
+        try {
+            CZStorageContainer container = new CZStorageContainer();
+            container.drawnActions = getDrawnActions();
+            container.bitmapBytes = bitmapToBytes(((BitmapDrawable) getDrawable()).getBitmap());
+
+            FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
+            ObjectOutputStream os = new ObjectOutputStream(fos);
+            os.writeObject(container);
+            os.close();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadFromFile(Context context, CZAttacher attacher, String filename) {
+        try {
+            FileInputStream fis = context.openFileInput(filename);
+            ObjectInputStream is = new ObjectInputStream(fis);
+
+            CZStorageContainer container = (CZStorageContainer) is.readObject();
+            mDrawnActions = container.drawnActions;
+            Bitmap backgroundBitmap = bytesToBitmap(container.bitmapBytes);
+
+            setImageBitmap(backgroundBitmap);
+            attacher.update();
+            invalidate();
+            is.close();
+            fis.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setBackgroundPicture(Bitmap backgroundBitmap, CZAttacher attacher, Context context) {
+        // Set image bitmap of this image view.
+        setImageBitmap(backgroundBitmap);
+        invalidate();
+        attacher.update();
+    }
+
+    private byte[] bitmapToBytes(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
+
+    private Bitmap bytesToBitmap(byte[] bytes) {
+        Bitmap bitmap = BitmapFactory.decodeByteArray(
+                bytes,
+                0,
+                bytes.length);
+        return bitmap;
     }
 }

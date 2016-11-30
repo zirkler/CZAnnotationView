@@ -49,6 +49,16 @@
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/ic_redo_black"
                 android:text="Redo"/>
+            <Button
+                android:id="@+id/bttSaveToFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Speichern"/>
+            <Button
+                android:id="@+id/bttLoadFromFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Laden"/>
         </android.support.v7.widget.Toolbar>
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.graphics.Region;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,12 +16,11 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     public static final int CLICK_AREA_TOLERANCE = 15;
     float mX;
     float mY;
-    transient private CZPaint mPaint;
+    private CZPaint mPaint;
     private CZPaint mNormalPaint;
     private CZPaint mMovementPaint;
     private CZPaint mClickAreaPaint;
     private List<CZRelCords> mCoords = new ArrayList<>();
-    transient private Region mRegion;
     transient private Path mPath;
     transient private List<CZLine> clickAreaLines = new ArrayList<>();
 
@@ -132,7 +130,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
         float cordX = (cords.getX() * displayRect.width() + displayRect.left);
         float cordY = (cords.getY() * displayRect.height() + displayRect.top);
 
-        clickAreaLines.clear();
+        clickAreaLines = new ArrayList<>();
         for (int i = 0; i < mCoords.size() - 1; i++) {
             float topXCoordinate;
             float topYCoordinate;
@@ -194,14 +192,16 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
             canvas.drawPath(mPath, mPaint);
 
             // draw click area polygons
-            for (int i = 0; i < clickAreaLines.size(); i++) {
-                canvas.drawLine(
-                        clickAreaLines.get(i).getStart().x,
-                        clickAreaLines.get(i).getStart().y,
-                        clickAreaLines.get(i).getEnd().x,
-                        clickAreaLines.get(i).getEnd().y,
-                        mClickAreaPaint
-                );
+            if (clickAreaLines != null) {
+                for (int i = 0; i < clickAreaLines.size(); i++) {
+                    canvas.drawLine(
+                            clickAreaLines.get(i).getStart().x,
+                            clickAreaLines.get(i).getStart().y,
+                            clickAreaLines.get(i).getEnd().x,
+                            clickAreaLines.get(i).getEnd().y,
+                            mClickAreaPaint
+                    );
+                }
             }
         }
     }

@@ -27,11 +27,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
         boolean isOneFinger = event.getPointerCount() == 1;
 
-        // Here map the pixel values of coordinate to a image relative representation.
-        // pX/Y contains values between 0 and 1, if the user touches inside the image.
-        // pX = 1 if the touches on the most right pixel of the image,
-        // pX = 0.0...01 if the user touches the most left pixel in the image.
-        // Same for pY, pY = 1 is bottom of the image, pY = 0 is top of the image.
+
         CZRelCords relCoords = pixelCoordToImageRelativeCoord(event, getDisplayRect());
 
         // User lays a finger on the screen
@@ -66,7 +62,6 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
                     mSelectedItem = null;
                     mCurrentState = CZState.READY_TO_DRAW;
                 }
-
             }
         }
 
@@ -142,7 +137,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     public boolean onLongClick(View view, MotionEvent event) {
         CZRelCords cords = pixelCoordToImageRelativeCoord(event, getDisplayRect());
 
-        // Search the item stack beggining form the for a clicked item
+        // Search the item stack begining form the for a clicked item
         for (int i = mPhotoView.getDrawnActions().size() - 1; i >= 0; i--) {
             CZIDrawingAction currAction = mPhotoView.getDrawnActions().get(i);
             if (currAction.checkIfClicked(cords, mPhotoView.getmInitialDisplayRect())) {
@@ -157,15 +152,19 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     }
 
     /**
-     * TODO: Document this bro.
-     * @param e
+     * Here map the pixel values of coordinate to a image relative representation.
+     * pX/Y contains values between 0 and 1, if the user touches inside the image.
+     * pX = 1 if the touches on the most right pixel of the image,
+     * pX = 0.0...01 if the user touches the most left pixel in the image.
+     * Same for pY, pY = 1 is bottom of the image, pY = 0 is top of the image.
+     * @param event Motion Event
      * @param displayRect
-     * @return
+     * @return The relative coordinate.
      */
-    private CZRelCords pixelCoordToImageRelativeCoord(MotionEvent e, RectF displayRect) {
+    private CZRelCords pixelCoordToImageRelativeCoord(MotionEvent event, RectF displayRect) {
         CZRelCords coords = new CZRelCords();
-        coords.setX((e.getX() - getDisplayRect().left) / displayRect.width());
-        coords.setY((e.getY() - getDisplayRect().top) / displayRect.height());
+        coords.setX((event.getX() - getDisplayRect().left) / displayRect.width());
+        coords.setY((event.getY() - getDisplayRect().top) / displayRect.height());
         return coords;
     }
 
