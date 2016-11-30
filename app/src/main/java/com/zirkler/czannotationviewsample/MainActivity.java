@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.squareup.picasso.Callback;
@@ -14,6 +15,7 @@ import com.zirkler.czannotationviewsample.AnnotationView.CZAttacher;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActionEraser;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActionFreehand;
 import com.zirkler.czannotationviewsample.AnnotationView.CZIDrawingAction;
+import com.zirkler.czannotationviewsample.AnnotationView.CZIItemLongClickListener;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
 
 import java.io.FileInputStream;
@@ -55,6 +57,15 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(MainActivity.class.getSimpleName(), "Picasso Error occurred.");
             }
         });
+
+        mPhotoView.setOnItemLongClickListener(new CZIItemLongClickListener() {
+            @Override
+            public void onItemLongClicked(CZIDrawingAction item, MotionEvent e) {
+                Toast.makeText(MainActivity.this, "Item got clicked", Toast.LENGTH_SHORT).show();
+                item.moveStart();
+            }
+        });
+
     }
 
     @Override

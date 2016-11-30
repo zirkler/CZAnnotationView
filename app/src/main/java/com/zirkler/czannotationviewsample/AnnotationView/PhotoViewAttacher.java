@@ -1147,7 +1147,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
                                 + " MaxX:" + maxX + " MaxY:" + maxY);
             }
 
-            // If we actually can move, fling the scroller
+            // If we actually can moveItem, fling the scroller
             if (startX != maxX || startY != maxY) {
                 mScroller.fling(startX, startY, velocityX, velocityY, minX,
                         maxX, minY, maxY, 0, 0);

@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
-import android.util.Log;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,31 +14,38 @@ import java.util.List;
 
 public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
 
-    public static final int CLICK_AREA_TOLERANCE = 10;
+    public static final int CLICK_AREA_TOLERANCE = 15;
     float mX;
     float mY;
-    private CZPaint mPaint;
+    transient private CZPaint mPaint;
+    private CZPaint mNormalPaint;
+    private CZPaint mMovementPaint;
     private CZPaint mClickAreaPaint;
     private List<CZRelCords> mCoords = new ArrayList<>();
     transient private Region mRegion;
     transient private Path mPath;
     transient private List<CZLine> clickAreaLines = new ArrayList<>();
 
-
     public CZDrawingActionFreehand(Context context, CZPaint paint) {
         mCoords = new ArrayList<>();
 
         // If there isn't a paint provided, create a default paint.
         if (paint == null) {
-            mPaint = new CZPaint();
-            mPaint.setAntiAlias(true);
-            mPaint.setColor(Color.RED);
-            mPaint.setStyle(Paint.Style.STROKE);
-            mPaint.setStrokeJoin(Paint.Join.ROUND);
-            mPaint.setStrokeCap(Paint.Cap.ROUND);
-            mPaint.setStrokeWidth(10);
+            mNormalPaint = new CZPaint();
+            mNormalPaint.setAntiAlias(true);
+            mNormalPaint.setColor(Color.BLACK);
+            mNormalPaint.setStyle(Paint.Style.STROKE);
+            mNormalPaint.setStrokeJoin(Paint.Join.ROUND);
+            mNormalPaint.setStrokeCap(Paint.Cap.ROUND);
+            mNormalPaint.setStrokeWidth(10);
 
-
+            mMovementPaint = new CZPaint();
+            mMovementPaint.setAntiAlias(true);
+            mMovementPaint.setColor(Color.RED);
+            mMovementPaint.setStyle(Paint.Style.STROKE);
+            mMovementPaint.setStrokeJoin(Paint.Join.ROUND);
+            mMovementPaint.setStrokeCap(Paint.Cap.ROUND);
+            mMovementPaint.setStrokeWidth(10);
 
             mClickAreaPaint = new CZPaint();
             mClickAreaPaint.setAntiAlias(true);
@@ -49,8 +55,10 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
             mClickAreaPaint.setStrokeCap(Paint.Cap.ROUND);
             mClickAreaPaint.setStrokeWidth(5);
         } else {
-            mPaint = paint;
+            mNormalPaint = paint;
         }
+
+        mPaint = mNormalPaint;
     }
 
     @Override
@@ -66,7 +74,9 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
                      mY,
                      (x + mX) / 2,
                      (y + mY) / 2); */
-        Log.i("asd", String.valueOf(x) + " " + String.valueOf(y));
+
+
+        // user is currently drawing this item
         mCoords.add(new CZRelCords(x, y));
         mX = x;
         mY = y;
@@ -79,13 +89,32 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     }
 
     @Override
+    public void moveStart() {
+        mPaint = mMovementPaint;
+    }
+
+    @Override
+    public void moveItem(float relDX, float relDY) {
+        for (int i = 0; i < mCoords.size(); i++) {
+            CZRelCords currCords = mCoords.get(i);
+            currCords.setX(currCords.getX() + relDX);
+            currCords.setY(currCords.getY() + relDY);
+        }
+    }
+
+    @Override
+    public void moveFinished() {
+        mPaint = mNormalPaint;
+    }
+
+    @Override
     public CZPaint getPaint() {
-        return mPaint;
+        return mNormalPaint;
     }
 
     @Override
     public void setPaint(CZPaint paint) {
-        mPaint = paint;
+        mNormalPaint = paint;
     }
 
     @Override
@@ -152,6 +181,8 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     @Override
     public void draw(Canvas canvas, RectF displayRect) {
         mPath = new Path();
+        CZPaint currPaint;
+
         if (mCoords != null && mCoords.size() > 0) {
             mPath.moveTo(mCoords.get(0).getX() * displayRect.width() + displayRect.left,
                         mCoords.get(0).getY() * displayRect.height() + displayRect.top);
@@ -162,6 +193,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
             }
             canvas.drawPath(mPath, mPaint);
 
+            // draw click area polygons
             for (int i = 0; i < clickAreaLines.size(); i++) {
                 canvas.drawLine(
                         clickAreaLines.get(i).getStart().x,

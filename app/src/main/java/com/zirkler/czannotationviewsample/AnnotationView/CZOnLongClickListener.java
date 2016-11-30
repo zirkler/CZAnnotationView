@@ -8,5 +8,11 @@ import android.view.View;
  */
 public interface CZOnLongClickListener {
 
-    boolean onLongClick(View view, MotionEvent e);
+    /**
+     * User long clicked on an item on the drawing view.
+     * @param view The CZPhotoView
+     * @param event The android motion event.
+     * @return A boolean value.
+     */
+    boolean onLongClick(View view, MotionEvent event);
 }

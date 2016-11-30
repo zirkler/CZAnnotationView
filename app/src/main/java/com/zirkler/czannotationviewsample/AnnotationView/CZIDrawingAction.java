@@ -10,25 +10,31 @@ import java.util.List;
 public interface CZIDrawingAction extends Serializable {
 
 
-    public void touchStart(float x, float y);
+    void touchStart(float x, float y);
 
-    public void touchMove(float x, float y);
+    void touchMove(float x, float y);
 
-    public void touchUp(float x, float y);
+    void touchUp(float x, float y);
 
-    public void draw(Canvas canvas, RectF displayRect);
+    void moveStart();
 
-    public CZIDrawingAction createInstance(Context context, CZPaint paint);
+    void moveItem(float relDX, float relDY);
 
-    public List<CZRelCords> getCoords();
+    void moveFinished();
 
-    public CZPaint getPaint();
+    void draw(Canvas canvas, RectF displayRect);
 
-    public void setPaint(CZPaint paint);
+    CZIDrawingAction createInstance(Context context, CZPaint paint);
 
-    public boolean isErasable();
+    List<CZRelCords> getCoords();
 
-    public boolean checkBounds(float x, float y);
+    CZPaint getPaint();
 
-    public boolean checkIfClicked(CZRelCords coords, RectF displayRect);
+    void setPaint(CZPaint paint);
+
+    boolean isErasable();
+
+    boolean checkBounds(float x, float y);
+
+    boolean checkIfClicked(CZRelCords coords, RectF displayRect);
 }

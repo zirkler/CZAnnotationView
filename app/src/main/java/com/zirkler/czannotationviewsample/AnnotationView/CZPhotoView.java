@@ -27,10 +27,12 @@ public class CZPhotoView extends PhotoView {
     private CZIDrawingAction mCurrentDrawingAction;
     private List<CZIDrawingAction> mDrawnActions = new ArrayList<>();
     private List<CZIDrawingAction> mRedoActions = new ArrayList<>();
-    private Canvas cacheCanvas;
-    private Bitmap foreground;
+    private Canvas mCacheCanvas;
+    private Bitmap mForeground;
     private Paint mBitmapPaint;
-    private RectF initialDisplayRect;
+    private RectF mInitialDisplayRect;
+
+    private CZIItemLongClickListener mItemClickListener;
 
     public CZPhotoView(Context context) {
         super(context);
@@ -47,10 +49,6 @@ public class CZPhotoView extends PhotoView {
         setup();
     }
 
-    public RectF getInitialDisplayRect() {
-        return initialDisplayRect;
-    }
-
     private void setup() {
         mBitmapPaint = new Paint();
         mBitmapPaint.setAntiAlias(true);
@@ -60,14 +58,14 @@ public class CZPhotoView extends PhotoView {
         viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                foreground = Bitmap.createBitmap(
+                mForeground = Bitmap.createBitmap(
                         getWidth(),
                         getHeight(),
                         Bitmap.Config.ARGB_8888);
 
-                cacheCanvas = new Canvas();
-                cacheCanvas.setBitmap(foreground);
-                initialDisplayRect = getDisplayRect();
+                mCacheCanvas = new Canvas();
+                mCacheCanvas.setBitmap(mForeground);
+                mInitialDisplayRect = getDisplayRect();
             }
         });
     }
@@ -114,25 +112,25 @@ public class CZPhotoView extends PhotoView {
         super.onDraw(canvas);
 
         // clear the cache canvas
-        cacheCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        mCacheCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
         // Here happens all the scaling and translation MAGIC!
         canvas.concat(mConcatMatrix);
 
         // Draw all the already drawn stuff to the canvas.
         for (int i = 0; i < mDrawnActions.size(); i++) {
-            mDrawnActions.get(i).draw(cacheCanvas, initialDisplayRect);
+            mDrawnActions.get(i).draw(mCacheCanvas, mInitialDisplayRect);
         }
 
         // Draw the path the user is currently drawing.
         if (mCurrentDrawingAction != null) {
-            mCurrentDrawingAction.draw(cacheCanvas, initialDisplayRect);
+            mCurrentDrawingAction.draw(mCacheCanvas, mInitialDisplayRect);
         }
 
         Paint drawBitmapPaint = new Paint();
         drawBitmapPaint.setAntiAlias(true);
         drawBitmapPaint.setFilterBitmap(true);
-        canvas.drawBitmap(foreground, 0, 0, drawBitmapPaint);
+        canvas.drawBitmap(mForeground, 0, 0, drawBitmapPaint);
     }
 
     /**
@@ -180,16 +178,42 @@ public class CZPhotoView extends PhotoView {
     /**
      * Gets called from the CZAttacher, i.e. when user lays down second finger while drawing.
      */
-    public void userCanceldDrawing() {
+    public void cancelCurrentDrawingAction() {
         mCurrentDrawingAction = mCurrentDrawingAction.createInstance(getContext(), null);
         invalidate();
     }
 
+    /**
+     * @return Returns all the already drawn actions.
+     */
     public List<CZIDrawingAction> getDrawnActions() {
         return mDrawnActions;
     }
 
     public void setmDrawnActions(List<CZIDrawingAction> mDrawnActions) {
         this.mDrawnActions = mDrawnActions;
+    }
+
+    /**
+     * @return Returns the item click listener.
+     */
+    public CZIItemLongClickListener getItemClickListener() {
+        return mItemClickListener;
+    }
+
+    /**
+     * Set the item click listener
+     * @param itemClickListener The to be set item click listener.
+     */
+    public void setOnItemLongClickListener(CZIItemLongClickListener itemClickListener) {
+        this.mItemClickListener = itemClickListener;
+    }
+
+    /**
+     * Returns the initial display rect.
+     * @return Initial display rect.
+     */
+    public RectF getmInitialDisplayRect() {
+        return mInitialDisplayRect;
     }
 }

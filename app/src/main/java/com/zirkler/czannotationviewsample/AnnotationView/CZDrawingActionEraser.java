@@ -57,12 +57,27 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
         mCoords.add(new CZRelCords(x, y));
     }
 
+    @Override
+    public void moveStart() {
+
+    }
+
+    @Override
+    public void moveItem(float relDX, float relDY) {
+
+    }
+
+    @Override
+    public void moveFinished() {
+
+    }
+
 
     @Override
     public void draw(Canvas canvas, RectF displayRect) {
         Path path = new Path();
         if (mCoords != null && mCoords.size() > 0) {
-            // move to start coordinates
+            // moveItem to start coordinates
             path.moveTo(mCoords.get(0).getX() * displayRect.width() + displayRect.left,
                     mCoords.get(0).getY() * displayRect.height() + displayRect.top);
 
