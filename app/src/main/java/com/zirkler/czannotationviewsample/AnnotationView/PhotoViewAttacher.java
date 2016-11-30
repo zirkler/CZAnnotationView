@@ -28,7 +28,6 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -91,7 +90,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
     private OnMatrixChangedListener mMatrixChangeListener;
     private OnPhotoTapListener mPhotoTapListener;
     private OnViewTapListener mViewTapListener;
-    private OnLongClickListener mLongClickListener;
+    private CZOnLongClickListener mLongClickListener;
     private OnScaleChangeListener mScaleChangeListener;
     private OnSingleFlingListener mSingleFlingListener;
     private int mIvTop, mIvRight, mIvBottom, mIvLeft;
@@ -130,7 +129,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
                     @Override
                     public void onLongPress(MotionEvent e) {
                         if (null != mLongClickListener) {
-                            mLongClickListener.onLongClick(getImageView());
+                            mLongClickListener.onLongClick(getImageView(), e);
                         }
                     }
 
@@ -581,7 +580,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
     }
 
     @Override
-    public void setOnLongClickListener(OnLongClickListener listener) {
+    public void setOnLongClickListener(CZOnLongClickListener listener) {
         mLongClickListener = listener;
     }
 

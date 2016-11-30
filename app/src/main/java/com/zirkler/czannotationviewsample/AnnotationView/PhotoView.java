@@ -156,6 +156,11 @@ public class PhotoView extends ImageView implements IPhotoView {
     }
 
     @Override
+    public void setOnLongClickListener(CZOnLongClickListener listener) {
+        mAttacher.setOnLongClickListener(listener);
+    }
+
+    @Override
     // setImageBitmap calls through to this method
     public void setImageDrawable(Drawable drawable) {
         super.setImageDrawable(drawable);
@@ -192,11 +197,6 @@ public class PhotoView extends ImageView implements IPhotoView {
     @Override
     public void setOnMatrixChangeListener(PhotoViewAttacher.OnMatrixChangedListener listener) {
         mAttacher.setOnMatrixChangeListener(listener);
-    }
-
-    @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-        mAttacher.setOnLongClickListener(l);
     }
 
     @Override

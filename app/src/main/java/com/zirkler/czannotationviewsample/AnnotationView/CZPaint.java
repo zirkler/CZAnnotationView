@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
+/**
+ * CZPaint is just a serializable extension of the Paint class.
+ */
 public class CZPaint extends Paint implements Serializable {
 
     private boolean mAntiAlias;

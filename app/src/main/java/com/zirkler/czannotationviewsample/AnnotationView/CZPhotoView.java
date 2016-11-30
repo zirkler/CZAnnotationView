@@ -47,6 +47,10 @@ public class CZPhotoView extends PhotoView {
         setup();
     }
 
+    public RectF getInitialDisplayRect() {
+        return initialDisplayRect;
+    }
+
     private void setup() {
         mBitmapPaint = new Paint();
         mBitmapPaint.setAntiAlias(true);

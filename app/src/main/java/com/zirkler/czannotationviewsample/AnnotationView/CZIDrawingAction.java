@@ -20,7 +20,7 @@ public interface CZIDrawingAction extends Serializable {
 
     public CZIDrawingAction createInstance(Context context, CZPaint paint);
 
-    public List<CZImageRelCoords> getCoords();
+    public List<CZRelCords> getCoords();
 
     public CZPaint getPaint();
 
@@ -29,4 +29,6 @@ public interface CZIDrawingAction extends Serializable {
     public boolean isErasable();
 
     public boolean checkBounds(float x, float y);
+
+    public boolean checkIfClicked(CZRelCords coords, RectF displayRect);
 }

@@ -2,11 +2,13 @@ package com.zirkler.czannotationviewsample.AnnotationView;
 
 import java.io.Serializable;
 
-public class CZImageRelCoords implements Serializable {
+public class CZRelCords implements Serializable {
     private float x;
     private float y;
 
-    public CZImageRelCoords(float x, float y) {
+    public CZRelCords() { }
+
+    public CZRelCords(float x, float y) {
         this.x = x;
         this.y = y;
     }

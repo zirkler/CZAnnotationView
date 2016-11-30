@@ -14,14 +14,13 @@ import java.util.List;
 
 public class CZDrawingActionEraser implements CZIDrawingAction {
 
-    CZPath mPath;
     CZPaint mEraserPaint;
     float mX;
     float mY;
-    private List<CZImageRelCoords> mCoords = new ArrayList<>();
+    private List<CZRelCords> mCoords;
 
     public CZDrawingActionEraser(Context context, CZPaint paint) {
-        mPath = new CZPath();
+        mCoords = new ArrayList<>();
 
         if (paint == null) {
             mEraserPaint = new CZPaint();
@@ -43,22 +42,19 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     public void touchStart(float x, float y) {
         mX = x;
         mY = y;
-        // mPath.moveTo(x, y);
-        mCoords.add(new CZImageRelCoords(x, y));
+        mCoords.add(new CZRelCords(x, y));
     }
 
     @Override
     public void touchMove(float x, float y) {
-        mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
-        mPath.addCircle(x, y , 100, Path.Direction.CW);
-        mCoords.add(new CZImageRelCoords(x, y));
+        mCoords.add(new CZRelCords(x, y));
         mX = x;
         mY = y;
     }
 
     @Override
     public void touchUp(float x, float y) {
-        mCoords.add(new CZImageRelCoords(x, y));
+        mCoords.add(new CZRelCords(x, y));
     }
 
 
@@ -100,12 +96,17 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
+    public boolean checkIfClicked(CZRelCords coords, RectF displayRect) {
+        return false;
+    }
+
+    @Override
     public CZIDrawingAction createInstance(Context context, CZPaint paint) {
         return new CZDrawingActionEraser(context, paint);
     }
 
     @Override
-    public List<CZImageRelCoords> getCoords() {
+    public List<CZRelCords> getCoords() {
         return mCoords;
     }
 }
