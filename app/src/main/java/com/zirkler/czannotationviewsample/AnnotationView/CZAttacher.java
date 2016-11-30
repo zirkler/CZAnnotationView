@@ -141,7 +141,9 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     @Override
     public boolean onLongClick(View view, MotionEvent event) {
         CZRelCords cords = pixelCoordToImageRelativeCoord(event, getDisplayRect());
-        for (int i = 0; i < mPhotoView.getDrawnActions().size(); i++) {
+
+        // Search the item stack beggining form the for a clicked item
+        for (int i = mPhotoView.getDrawnActions().size() - 1; i >= 0; i--) {
             CZIDrawingAction currAction = mPhotoView.getDrawnActions().get(i);
             if (currAction.checkIfClicked(cords, mPhotoView.getmInitialDisplayRect())) {
                 mPhotoView.cancelCurrentDrawingAction();
