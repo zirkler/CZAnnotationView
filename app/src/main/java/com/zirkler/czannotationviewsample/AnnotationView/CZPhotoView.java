@@ -1,7 +1,6 @@
 package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,8 +11,6 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 
@@ -287,7 +284,14 @@ public class CZPhotoView extends PhotoView {
         return bitmap;
     }
 
-    public void exportAsJpg(Context context, String fileName) {
+    /**
+     * Exports the entire image in the image's resolution to the android gallery.
+     * @param context The CZPhotoView hosting activity.
+     * @return Returns the path of the image file or null if this method failed.
+     */
+    public String exportAsJpg(Context context) {
+        String imagePath = null;
+
         try {
             Bitmap backgroundFullSize = ((BitmapDrawable) getDrawable()).getBitmap();
             Bitmap exportBitmap = backgroundFullSize.copy(Bitmap.Config.ARGB_8888, true);
@@ -303,16 +307,13 @@ public class CZPhotoView extends PhotoView {
             }
 
             // Write image to gallery (as jpg)
-            String imagePath = MediaStore.Images.Media.insertImage(context.getContentResolver(), exportBitmap, "YO", "yoyo");
-
-            Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_VIEW);
-            intent.setDataAndType(Uri.parse(imagePath), "image/*");
-            context.startActivity(intent);
+            imagePath = SKPhotoUtils.insertImage(context.getContentResolver(), exportBitmap, "", "");
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return imagePath;
     }
 
 

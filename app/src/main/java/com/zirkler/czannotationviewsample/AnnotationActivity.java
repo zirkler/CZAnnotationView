@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
@@ -137,7 +138,12 @@ public class AnnotationActivity extends AppCompatActivity {
         } else if (item.getItemId() == R.id.action_measurement_line) {
 
         } else if (item.getItemId() == R.id.action_export) {
-            mPhotoView.exportAsJpg(this, mFileName + ".jpg");
+            // Export image and open in gallery, then open gallery (or do something different, put in an email or stuff)
+            String imagePath = mPhotoView.exportAsJpg(this);
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.parse(imagePath), "image/*");
+            startActivity(intent);
         }
         return true;
     }
