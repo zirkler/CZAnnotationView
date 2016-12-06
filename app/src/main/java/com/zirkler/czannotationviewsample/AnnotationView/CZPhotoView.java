@@ -1,6 +1,7 @@
 package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -10,8 +11,6 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 
@@ -20,7 +19,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,73 +86,6 @@ public class CZPhotoView extends PhotoView {
     }
 
     /**
-     * Saves the instance state, so the library user does not have to implement this himself.
-     * @return Parceable state.
-     */
-    @Override
-    protected Parcelable onSaveInstanceState() {
-        Bundle outState = new Bundle();
-
-        outState.putParcelable(SUPER_STATE, super.onSaveInstanceState());
-        outState.putSerializable(DRAWN_ACTIONS, (Serializable) mDrawnActions);
-        outState.putString(BACKGROUND_TEMP_FILE_PATH_KEY, mTempBackgroundImagePath);
-
-        // Save the background image to temp directory.
-        /*
-        FileOutputStream outputStream = null;
-        try {
-            File outputDir = mContext.getCacheDir();
-            File outputFile = File.createTempFile(BACKGROUND_TEMP_FILE_PATH, "png", outputDir);
-            outputStream = new FileOutputStream(outputFile);
-            Bitmap backgroundBitmap = ((BitmapDrawable) getDrawable()).getBitmap();
-            backgroundBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-            mTempBackgroundImagePath = outputFile.getPath();
-            outState.putString(BACKGROUND_TEMP_FILE_PATH_KEY, mTempBackgroundImagePath);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }*/
-
-        return outState;
-    }
-
-
-    /**
-     * Restores the instance state, so the library user does not have to implement this himself.
-     * @param state
-     */
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        if (state instanceof Parcelable) {
-            Bundle inState = (Bundle) state;
-
-            // Restore drawn items
-            if (inState != null && inState.containsKey(DRAWN_ACTIONS)) {
-                List<CZIDrawingAction> drawnActions = (List<CZIDrawingAction>)inState.getSerializable(DRAWN_ACTIONS);
-                this.mDrawnActions = drawnActions;
-                invalidate();
-
-                /*BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_4444;
-                String bitmapPath = inState.getString(BACKGROUND_TEMP_FILE_PATH_KEY);
-                Bitmap bitmap = BitmapFactory.decodeFile(bitmapPath, options);
-                setImageBitmap(bitmap);
-                attacher.update();*/
-            }
-
-            state = inState.getParcelable(SUPER_STATE);
-            super.onRestoreInstanceState(state);
-        }
-    }
-
-    /**
      * This method performs the actual drawing of the users drawn stuff.
      * @param canvas The canvas of the imageview / photoview.
      */
@@ -182,6 +113,19 @@ public class CZPhotoView extends PhotoView {
         drawBitmapPaint.setAntiAlias(true);
         drawBitmapPaint.setFilterBitmap(true);
         canvas.drawBitmap(mForeground, 0, 0, drawBitmapPaint);
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                invalidate();
+                attacher.update();
+                attacher.onScale(0, 0, 0);
+
+            }
+        }, 1);
     }
 
     /**
