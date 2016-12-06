@@ -1,6 +1,6 @@
 package com.zirkler.czannotationviewsample;
 
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -28,23 +29,19 @@ import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
 import com.zirkler.czannotationviewsample.AnnotationView.MagnifierView;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class AnnotationActivity extends AppCompatActivity {
 
     public static final String DRAWN_ACTIONS = "drawn_actions";
+    public static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 101;
+
     @BindView(R.id.toolbar) Toolbar mToolbar;
     private CZAttacher mAttacher;
     private CZPhotoView mPhotoView;
@@ -97,11 +94,28 @@ public class AnnotationActivity extends AppCompatActivity {
             });
         }
 
-
-        // setup magnifier view
+        // Setup magnifier view
         mMagnifierView = (MagnifierView) findViewById(R.id.magnifierView);
         mMagnifierView.mCZPhotoView = mPhotoView;
         mPhotoView.mMagnifierView = mMagnifierView;
+
+        // Ask for permission for writing to external storage (needed for exporting to gallery)
+        String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            // Already have permission, do the thing ...
+        } else {
+            // Do not have permissions, request them now
+            EasyPermissions.requestPermissions(this,
+                                               "Please issue permissions for saving to gallery!",
+                                               EXTERNAL_STORAGE_WRITE_PERMISSION,
+                                               perms);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 
     @Override
@@ -122,35 +136,8 @@ public class AnnotationActivity extends AppCompatActivity {
             EasyImage.openChooserWithDocuments(this, "Choose Background Image", 0);
         } else if (item.getItemId() == R.id.action_measurement_line) {
 
-        } else if (item.getItemId() == R.id.action_serialize) {
-            FileOutputStream fos;
-            try {
-                String fileName = "serialized.txt";
-
-                // write file
-                fos = this.openFileOutput(fileName, Context.MODE_PRIVATE);
-                ObjectOutputStream os = new ObjectOutputStream(fos);
-                os.writeObject(mPhotoView.getDrawnActions());
-                os.close();
-                fos.close();
-
-                // read file
-                FileInputStream fis = this.openFileInput(fileName);
-                ObjectInputStream is = new ObjectInputStream(fis);
-                List<CZIDrawingAction> simpleClass = (List<CZIDrawingAction>) is.readObject();
-                is.close();
-                fis.close();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                e.printStackTrace(pw);
-
-                Log.i("asd", sw.toString());
-                Toast.makeText(this, sw.toString(), Toast.LENGTH_LONG).show();
-            }
-
+        } else if (item.getItemId() == R.id.action_export) {
+            mPhotoView.exportAsJpg(this, mFileName + ".jpg");
         }
         return true;
     }

@@ -41,7 +41,7 @@ public class MagnifierView extends View {
                 mBitmap = Bitmap.createBitmap(
                         getWidth(),
                         getHeight(),
-                        Bitmap.Config.ARGB_8888);
+                        Bitmap.Config.RGB_565);
             }
         });
     }
@@ -63,7 +63,6 @@ public class MagnifierView extends View {
                         -ay * scaleFactor + (getHeight() / 2));
             c.scale(scaleFactor, scaleFactor);
             mCZPhotoView.draw(c);
-
 
             canvas.drawBitmap(mBitmap, 0, 0, drawBitmapPaint);
         }

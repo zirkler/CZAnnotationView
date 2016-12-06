@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
                         // Go to the new drawing
                         Intent intent = new Intent(MainActivity.this, AnnotationActivity.class);
+                        intent.putExtra(DRAWING_KEY, newDrawing);
                         startActivity(intent);
                     }
                 }).show();

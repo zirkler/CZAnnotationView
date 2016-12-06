@@ -1,6 +1,7 @@
 package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,8 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 
@@ -283,4 +286,34 @@ public class CZPhotoView extends PhotoView {
                 bytes.length);
         return bitmap;
     }
+
+    public void exportAsJpg(Context context, String fileName) {
+        try {
+            Bitmap backgroundFullSize = ((BitmapDrawable) getDrawable()).getBitmap();
+            Bitmap exportBitmap = backgroundFullSize.copy(Bitmap.Config.ARGB_8888, true);
+
+            Canvas c = new Canvas(exportBitmap);
+            c.setBitmap(exportBitmap);
+
+            RectF displayRect = new RectF(0, 0, (float)exportBitmap.getWidth(), (float)exportBitmap.getHeight());
+
+            // Draw all the already drawn stuff to the canvas.
+            for (int i = 0; i < mDrawnActions.size(); i++) {
+                mDrawnActions.get(i).draw(c, displayRect);
+            }
+
+            // Write image to gallery (as jpg)
+            String imagePath = MediaStore.Images.Media.insertImage(context.getContentResolver(), exportBitmap, "YO", "yoyo");
+
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.parse(imagePath), "image/*");
+            context.startActivity(intent);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
