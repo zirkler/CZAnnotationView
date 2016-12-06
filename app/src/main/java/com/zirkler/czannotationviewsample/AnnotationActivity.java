@@ -25,6 +25,7 @@ import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActionFreehand
 import com.zirkler.czannotationviewsample.AnnotationView.CZIDrawingAction;
 import com.zirkler.czannotationviewsample.AnnotationView.CZIItemLongClickListener;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
+import com.zirkler.czannotationviewsample.AnnotationView.MagnifierView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,6 +49,7 @@ public class AnnotationActivity extends AppCompatActivity {
     private CZAttacher mAttacher;
     private CZPhotoView mPhotoView;
     private String mFileName;
+    private MagnifierView mMagnifierView;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -93,8 +95,13 @@ public class AnnotationActivity extends AppCompatActivity {
                     Log.e(AnnotationActivity.class.getSimpleName(), "Picasso Error occurred.");
                 }
             });
-
         }
+
+
+        // setup magnifier view
+        mMagnifierView = (MagnifierView) findViewById(R.id.magnifierView);
+        mMagnifierView.mCZPhotoView = mPhotoView;
+        mPhotoView.mMagnifierView = mMagnifierView;
     }
 
     @Override

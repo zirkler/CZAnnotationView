@@ -149,7 +149,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
                 bottomPoint = mCoords.get(i);
             }
 
-            // Tramslate image relative points back to actual pixel coordinates
+            // Translate image relative points back to actual pixel coordinates
             topXCoordinate = topPoint.getX()       * displayRect.width()  + displayRect.left;
             topYCoordinate = topPoint.getY()       * displayRect.height() + displayRect.top;
             bottomXCoordinate = bottomPoint.getX() * displayRect.width()  + displayRect.left;

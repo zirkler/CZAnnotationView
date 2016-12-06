@@ -31,7 +31,7 @@ public class CZPhotoView extends PhotoView {
     private static final String BACKGROUND_TEMP_FILE_PATH = "czannotation_bg_tmp";
     private static final String BACKGROUND_TEMP_FILE_PATH_KEY = "bg_temp_";
     transient public CZAttacher attacher;
-
+    transient public MagnifierView mMagnifierView;
     Matrix mConcatMatrix = new Matrix();
     private CZIDrawingAction mCurrentDrawingAction;
     private List<CZIDrawingAction> mDrawnActions = new ArrayList<>();
@@ -113,6 +113,9 @@ public class CZPhotoView extends PhotoView {
         drawBitmapPaint.setAntiAlias(true);
         drawBitmapPaint.setFilterBitmap(true);
         canvas.drawBitmap(mForeground, 0, 0, drawBitmapPaint);
+
+        mMagnifierView.setDisplayRect(mInitialDisplayRect);
+        mMagnifierView.invalidate();
     }
 
     @Override

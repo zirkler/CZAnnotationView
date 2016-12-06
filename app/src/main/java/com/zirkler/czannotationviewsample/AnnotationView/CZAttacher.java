@@ -26,9 +26,9 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     public boolean onTouch(View v, MotionEvent event) {
 
         boolean isOneFinger = event.getPointerCount() == 1;
-
-
         CZRelCords relCoords = pixelCoordToImageRelativeCoord(event, getDisplayRect());
+        mPhotoView.mMagnifierView.ax = event.getX();
+        mPhotoView.mMagnifierView.ay = event.getY();
 
         // User lays a finger on the screen
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
