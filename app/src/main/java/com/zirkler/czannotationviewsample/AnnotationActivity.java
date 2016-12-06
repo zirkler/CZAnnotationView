@@ -47,6 +47,7 @@ public class AnnotationActivity extends AppCompatActivity {
     @BindView(R.id.toolbar) Toolbar mToolbar;
     private CZAttacher mAttacher;
     private CZPhotoView mPhotoView;
+    private String mFileName;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -56,24 +57,13 @@ public class AnnotationActivity extends AppCompatActivity {
         setupToolbar();
 
         mPhotoView = (CZPhotoView) findViewById(R.id.iv_photo);
+        mAttacher = new CZAttacher(mPhotoView);
+        mPhotoView.attacher = mAttacher;
 
-        Picasso.with(this).load(R.drawable.background).into(mPhotoView, new Callback() {
-            @Override
-            public void onSuccess() {
-                // The MAGIC happens here!
-                mAttacher = new CZAttacher(mPhotoView);
-                mPhotoView.attacher = mAttacher;
+        // Set default drawing tool
+        mPhotoView.setCurrentDrawingAction(new CZDrawingActionFreehand(AnnotationActivity.this, null));
 
-                // Set default drawing tool
-                mPhotoView.setCurrentDrawingAction(new CZDrawingActionFreehand(AnnotationActivity.this, null));
-            }
-
-            @Override
-            public void onError() {
-                Log.e(AnnotationActivity.class.getSimpleName(), "Picasso Error occurred.");
-            }
-        });
-
+        // Set onItemLongClickListener
         mPhotoView.setOnItemLongClickListener(new CZIItemLongClickListener() {
             @Override
             public void onItemLongClicked(CZIDrawingAction item, MotionEvent e) {
@@ -82,6 +72,29 @@ public class AnnotationActivity extends AppCompatActivity {
             }
         });
 
+        // Receive the drawing db object and check if a saved file of this drawing already exists
+        Drawing drawing = (Drawing) getIntent().getSerializableExtra(MainActivity.DRAWING_KEY);
+        mFileName = drawing.getDrawingTitle();
+        File file = new File(getFilesDir() + "/" + mFileName);
+
+        if (file.exists()) {
+            // load the saved file
+            mPhotoView.loadFromFile(this, mAttacher, mFileName);
+        } else {
+            // load the default background into the view
+            Picasso.with(this).load(R.drawable.background).into(mPhotoView, new Callback() {
+                @Override
+                public void onSuccess() {
+                    mAttacher.update();
+                }
+
+                @Override
+                public void onError() {
+                    Log.e(AnnotationActivity.class.getSimpleName(), "Picasso Error occurred.");
+                }
+            });
+
+        }
     }
 
     @Override
@@ -158,12 +171,12 @@ public class AnnotationActivity extends AppCompatActivity {
 
     @OnClick(R.id.bttSaveToFile)
     public void bttSaveToFileClicked() {
-        mPhotoView.saveToFile(this, "CZPhotoViewSerialized");
+        mPhotoView.saveToFile(this, mFileName);
     }
 
     @OnClick(R.id.bttLoadFromFile)
     public void bttLoadFromFile() {
-        mPhotoView.loadFromFile(this, mAttacher, "CZPhotoViewSerialized");
+        mPhotoView.loadFromFile(this, mAttacher, mFileName);
     }
 
     @Override
