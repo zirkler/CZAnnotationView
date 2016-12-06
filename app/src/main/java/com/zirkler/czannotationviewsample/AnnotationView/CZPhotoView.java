@@ -122,8 +122,7 @@ public class CZPhotoView extends PhotoView {
             public void run() {
                 invalidate();
                 attacher.update();
-                attacher.onScale(0, 0, 0);
-
+                attacher.onScale(0, 0, 0); // just called to force rescaling of drawings
             }
         }, 1);
     }
@@ -246,6 +245,7 @@ public class CZPhotoView extends PhotoView {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        attacher.onScale(0, 0, 0); // just called to force rescaling of drawings
     }
 
     public void setBackgroundPicture(Bitmap backgroundBitmap, CZAttacher attacher, Context context) {
@@ -255,12 +255,24 @@ public class CZPhotoView extends PhotoView {
         attacher.update();
     }
 
+    /**
+     * Takes a bitmap and returns its byte without any loss. Method performs very bad for big bitmaps.
+     * The bytes array can later be converted back to an bitmap by using the {@link #bytesToBitmap(byte[])} method.
+     * @param bitmap The bitmap from which you want the bytes.
+     * @return Returns a bytes array which represents the given bitmap 1:1.
+     */
     private byte[] bitmapToBytes(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         return stream.toByteArray();
     }
 
+    /**
+     * Converts an array of bytes into an bitmap. The array of bytes should be created by the
+     * {@link #bitmapToBytes(Bitmap)} method.
+     * @param bytes The byte array representation of the bitmap
+     * @return Returns the Bitmap of the corresponding byte array.
+     */
     private Bitmap bytesToBitmap(byte[] bytes) {
         Bitmap bitmap = BitmapFactory.decodeByteArray(
                 bytes,
