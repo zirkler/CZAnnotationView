@@ -29,8 +29,10 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
         boolean isOneFinger = event.getPointerCount() == 1;
         CZRelCords relCoords = pixelCoordToImageRelativeCoord(event, getDisplayRect());
-        
-        handleMagnifierPosition(event);
+
+        // TODO: This breaks zooming, fix it!
+        // handleMagnifierPosition(event);
+
 
 
         // Send absolute touch coordinates to the magnifier view
@@ -112,10 +114,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             // in first third, move magnifier right
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPhotoView.getMagnifierView().getLayoutParams();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                params.removeRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-
-                mPhotoView.getMagnifierView().setLayoutParams(params);
+                mPhotoView.getMagnifierView().setLeft(500);
             }
         }
 
@@ -123,11 +122,13 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             // in third third, move magnifier left
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPhotoView.getMagnifierView().getLayoutParams();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                params.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                /*params.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                mPhotoView.getMagnifierView().setLayoutParams(params);
+                mPhotoView.getMagnifierView().setLayoutParams(params);*/
+
             }
         }
+
     }
 
     // useful to work with relative distances
