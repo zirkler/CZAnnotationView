@@ -12,6 +12,7 @@ import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewTreeObserver;
 
 import java.io.ByteArrayOutputStream;
@@ -251,8 +252,13 @@ public class CZPhotoView extends PhotoView {
         attacher.onScale(0, 0, 0); // just called to force rescaling of drawings
     }
 
+    /**
+     * Sets the background image of the component. Also updates PhotoView attacher.
+     * @param backgroundBitmap
+     * @param attacher
+     * @param context
+     */
     public void setBackgroundPicture(Bitmap backgroundBitmap, CZAttacher attacher, Context context) {
-        // Set image bitmap of this image view.
         setImageBitmap(backgroundBitmap);
         invalidate();
         attacher.update();
@@ -291,27 +297,41 @@ public class CZPhotoView extends PhotoView {
      */
     public String exportAsJpg(Context context) {
         String imagePath = null;
+        Bitmap backgroundFullSize = ((BitmapDrawable) getDrawable()).getBitmap();
+        Bitmap exportBitmap = backgroundFullSize.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas exportCanvas = new Canvas(exportBitmap);
 
-        try {
-            Bitmap backgroundFullSize = ((BitmapDrawable) getDrawable()).getBitmap();
-            Bitmap exportBitmap = backgroundFullSize.copy(Bitmap.Config.ARGB_8888, true);
+        // Full resolution display rect
+        RectF displayRect = new RectF(0, 0,
+                                    (float)exportBitmap.getWidth(),
+                                    (float)exportBitmap.getHeight());
 
-            Canvas c = new Canvas(exportBitmap);
-            c.setBitmap(exportBitmap);
+        // Foreground bitmap, we gonna draw the users stuff on it
+        Bitmap foreground = Bitmap.createBitmap(
+                                    exportBitmap.getWidth(),
+                                    exportBitmap.getHeight(),
+                                    Bitmap.Config.ARGB_8888);
+        Canvas foregroundCanvas = new Canvas();
+        foregroundCanvas.setBitmap(foreground);
 
-            RectF displayRect = new RectF(0, 0, (float)exportBitmap.getWidth(), (float)exportBitmap.getHeight());
+        Log.i("export", String.format("Width: %d, Height: %d", exportBitmap.getWidth(), exportBitmap.getHeight()));
 
-            // Draw all the already drawn stuff to the canvas.
-            for (int i = 0; i < mDrawnActions.size(); i++) {
-                mDrawnActions.get(i).draw(c, displayRect);
-            }
 
-            // Write image to gallery (as jpg)
-            imagePath = SKPhotoUtils.insertImage(context.getContentResolver(), exportBitmap, "", "");
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Draw all the already drawn stuff to the canvas.
+        for (int i = 0; i < mDrawnActions.size(); i++) {
+            mDrawnActions.get(i).draw(foregroundCanvas, displayRect);
         }
+
+        // Just define a bitmap drawing paint
+        Paint drawBitmapPaint = new Paint();
+        drawBitmapPaint.setAntiAlias(true);
+        drawBitmapPaint.setFilterBitmap(true);
+
+        // Draw the foreground to the background
+        exportCanvas.drawBitmap(foreground, 0, 0, drawBitmapPaint);
+
+        // Write export bitmap jpg png to gallery
+        imagePath = SKPhotoUtils.insertImage(context.getContentResolver(), exportBitmap, "", "");
 
         return imagePath;
     }
