@@ -10,7 +10,7 @@ import java.util.List;
 public interface CZIDrawingAction extends Serializable {
 
 
-    void touchStart(float x, float y);
+    void touchStart(float x, float y, RectF displayRect);
 
     void touchMove(float x, float y);
 
@@ -32,7 +32,7 @@ public interface CZIDrawingAction extends Serializable {
 
     boolean checkBounds(float x, float y);
 
-    boolean checkIfClicked(CZRelCords coords, RectF displayRect);
+    boolean checkIfClicked(CZRelCords cords, RectF displayRect, Context context);
 
     void setActionState(CZDrawingActionState state);
 
@@ -40,6 +40,7 @@ public interface CZIDrawingAction extends Serializable {
         ITEM_DRAWN,     // The item got drawn a long time ago
         ITEM_DRAWING,   // The user is currently drawing this item
         ITEM_SELECTED,  // The user selected the item
-        ITEM_MOVING     // THe user moved the item right now
+        ITEM_MOVING,    // The user moved the item right now
+        ITEM_EDITING    // The user edits the item right now
     }
 }

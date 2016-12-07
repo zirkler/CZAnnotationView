@@ -70,7 +70,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     }
 
     @Override
-    public void touchStart(float x, float y) {
+    public void touchStart(float x, float y, RectF displayRect) {
         if (mState == CZDrawingActionState.ITEM_DRAWING) {
             mX = x;
             mY = y;
@@ -133,7 +133,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     }
 
     @Override
-    public boolean checkIfClicked(CZRelCords cords, RectF displayRect) {
+    public boolean checkIfClicked(CZRelCords cords, RectF displayRect, Context context) {
         float cordX = (cords.getX() * displayRect.width() + displayRect.left);
         float cordY = (cords.getY() * displayRect.height() + displayRect.top);
 
@@ -196,7 +196,6 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     @Override
     public void draw(Canvas canvas, RectF displayRect) {
         mPath = new Path();
-        CZPaint currPaint;
 
         if (mCoords != null && mCoords.size() > 0) {
             mPath.moveTo(mCoords.get(0).getX() * displayRect.width() + displayRect.left,

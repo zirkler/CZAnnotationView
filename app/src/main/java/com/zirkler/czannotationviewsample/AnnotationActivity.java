@@ -25,6 +25,7 @@ import com.squareup.picasso.Picasso;
 import com.zirkler.czannotationviewsample.AnnotationView.CZAttacher;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActionEraser;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActionFreehand;
+import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActionLine;
 import com.zirkler.czannotationviewsample.AnnotationView.CZIDrawingAction;
 import com.zirkler.czannotationviewsample.AnnotationView.CZIItemLongClickListener;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
@@ -139,8 +140,8 @@ public class AnnotationActivity extends AppCompatActivity {
             mPhotoView.setCurrentDrawingAction(new CZDrawingActionEraser(this, null));
         } else if (item.getItemId() == R.id.action_pick_background) {
             EasyImage.openChooserWithDocuments(this, "Choose Background Image", 0);
-        } else if (item.getItemId() == R.id.action_measurement_line) {
-
+        } else if (item.getItemId() == R.id.action_line) {
+            mPhotoView.setCurrentDrawingAction(new CZDrawingActionLine(this, null));
         } else if (item.getItemId() == R.id.action_export) {
             // Export image and open in gallery, then open gallery (or do something different, put in an email or stuff)
             String imagePath = mPhotoView.exportAsJpg(this);

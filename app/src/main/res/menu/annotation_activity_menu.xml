@@ -23,8 +23,8 @@
                 app:showAsAction="ifRoom" />
 
             <item
-                android:id="@+id/action_measurement_line"
-                android:title="Measurement Line"
+                android:id="@+id/action_line"
+                android:title="Line"
                 app:showAsAction="ifRoom" />
 
             <item

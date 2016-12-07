@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
@@ -58,6 +59,20 @@ public class CZPhotoView extends PhotoView {
     public CZPhotoView(Context context, AttributeSet attr, int defStyle) {
         super(context, attr, defStyle);
         setup(context);
+    }
+
+    public static double pointToSegmentDistance(PointF segA, PointF segB, PointF p) {
+        PointF p2 = new PointF(segB.x - segA.x, segB.y - segA.y);
+        float something = p2.x * p2.x + p2.y * p2.y;
+        float u = ((p.x - segA.x) * p2.x + (p.y - segA.y) * p2.y) / something;
+        if (u > 1)      u = 1;
+        else if (u < 0) u = 0;
+        float x = segA.x + u * p2.x;
+        float y = segA.y + u * p2.y;
+        float dx = x - p.x;
+        float dy = y - p.y;
+        double dist = Math.sqrt(dx * dx + dy * dy);
+        return dist;
     }
 
     public String getmTempBackgroundImagePath() {
@@ -213,7 +228,6 @@ public class CZPhotoView extends PhotoView {
     public RectF getInitialDisplayRect() {
         return mInitialDisplayRect;
     }
-
 
     public void saveToFile(Context context, String filename) {
         try {

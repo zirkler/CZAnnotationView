@@ -39,7 +39,7 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
-    public void touchStart(float x, float y) {
+    public void touchStart(float x, float y, RectF displayRect) {
         mX = x;
         mY = y;
         mCoords.add(new CZRelCords(x, y));
@@ -100,7 +100,7 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
-    public boolean checkIfClicked(CZRelCords coords, RectF displayRect) {
+    public boolean checkIfClicked(CZRelCords cords, RectF displayRect, Context context) {
         return false;
     }
 
