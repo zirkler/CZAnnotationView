@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.squareup.picasso.Callback;
@@ -100,10 +101,17 @@ public class AnnotationActivity extends AppCompatActivity {
             });
         }
 
-        // Setup magnifier view
+        // Setup magnifier view, size is always 1/4 of the views width
         mMagnifierView = (MagnifierView) findViewById(R.id.magnifierView);
-        mMagnifierView.mCZPhotoView = mPhotoView;
-        mPhotoView.setMagnifierView(mMagnifierView);
+        mMagnifierView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mMagnifierView.getLayoutParams().width  = getWindow().getDecorView().getWidth() / 4;
+                mMagnifierView.getLayoutParams().height = getWindow().getDecorView().getWidth() / 4;
+                mMagnifierView.mCZPhotoView = mPhotoView;
+                mPhotoView.setMagnifierView(mMagnifierView);
+            }
+        });
 
         // Ask for permission for writing to external storage (needed for exporting to gallery)
         String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -111,10 +119,11 @@ public class AnnotationActivity extends AppCompatActivity {
             // Already have permission, do the thing ...
         } else {
             // Do not have permissions, request them now
-            EasyPermissions.requestPermissions(this,
-                                               "Please issue permissions for saving to gallery!",
-                                               EXTERNAL_STORAGE_WRITE_PERMISSION,
-                                               perms);
+            EasyPermissions.requestPermissions(
+                    this,
+                    "Please issue permissions for saving to gallery!",
+                    EXTERNAL_STORAGE_WRITE_PERMISSION,
+                    perms);
         }
     }
 
@@ -122,6 +131,11 @@ public class AnnotationActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override

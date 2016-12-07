@@ -11,7 +11,6 @@ import java.util.List;
 public class CZDrawingActionLine implements CZIDrawingAction {
 
     public static final int CLICK_AREA_TOLERANCE = 15;
-    public static final int HANDLE_CLICK_AREA_TOLERANCE = 40;
     private CZPaint mPaint;
     private CZPaint mNormalPaint;
     private CZPaint mMovementPaint;
@@ -21,7 +20,7 @@ public class CZDrawingActionLine implements CZIDrawingAction {
     private CZRelCords mEndCord;
     private CZDrawingActionState mState;
     private CZRelCords mCurrentlyEditingCords;
-    private int handleRadius = 40;
+    private int handleRadius = 60;
 
     public CZDrawingActionLine(Context context, CZPaint paint) {
 
@@ -37,19 +36,11 @@ public class CZDrawingActionLine implements CZIDrawingAction {
 
             mSelectionPaint = new CZPaint();
             mSelectionPaint.setAntiAlias(true);
-            mSelectionPaint.setColor(Color.YELLOW);
+            mSelectionPaint.setColor(Color.GREEN);
             mSelectionPaint.setStyle(Paint.Style.STROKE);
             mSelectionPaint.setStrokeJoin(Paint.Join.ROUND);
             mSelectionPaint.setStrokeCap(Paint.Cap.ROUND);
             mSelectionPaint.setStrokeWidth(10);
-
-            mMovementPaint = new CZPaint();
-            mMovementPaint.setAntiAlias(true);
-            mMovementPaint.setColor(Color.RED);
-            mMovementPaint.setStyle(Paint.Style.STROKE);
-            mMovementPaint.setStrokeJoin(Paint.Join.ROUND);
-            mMovementPaint.setStrokeCap(Paint.Cap.ROUND);
-            mMovementPaint.setStrokeWidth(10);
 
             mHandlePaint = new CZPaint();
             mHandlePaint.setAntiAlias(true);
@@ -74,16 +65,16 @@ public class CZDrawingActionLine implements CZIDrawingAction {
         } if (mState == CZDrawingActionState.ITEM_SELECTED) {
             // Check if user touched one of the handles
             RectF startHandleClickArea = new RectF(
-                    mStartCord.toAbsCords(displayRect)[0] - HANDLE_CLICK_AREA_TOLERANCE / 2,
-                    mStartCord.toAbsCords(displayRect)[1] - HANDLE_CLICK_AREA_TOLERANCE / 2,
-                    mStartCord.toAbsCords(displayRect)[0] + HANDLE_CLICK_AREA_TOLERANCE / 2,
-                    mStartCord.toAbsCords(displayRect)[1] + HANDLE_CLICK_AREA_TOLERANCE / 2);
+                    mStartCord.toAbsCords(displayRect)[0] - handleRadius / 2,
+                    mStartCord.toAbsCords(displayRect)[1] - handleRadius / 2,
+                    mStartCord.toAbsCords(displayRect)[0] + handleRadius / 2,
+                    mStartCord.toAbsCords(displayRect)[1] + handleRadius / 2);
 
             RectF endHandleClickArea = new RectF(
-                    mEndCord.toAbsCords(displayRect)[0] - HANDLE_CLICK_AREA_TOLERANCE / 2,
-                    mEndCord.toAbsCords(displayRect)[1] - HANDLE_CLICK_AREA_TOLERANCE / 2,
-                    mEndCord.toAbsCords(displayRect)[0] + HANDLE_CLICK_AREA_TOLERANCE / 2,
-                    mEndCord.toAbsCords(displayRect)[1] + HANDLE_CLICK_AREA_TOLERANCE / 2);
+                    mEndCord.toAbsCords(displayRect)[0] - handleRadius / 2,
+                    mEndCord.toAbsCords(displayRect)[1] - handleRadius / 2,
+                    mEndCord.toAbsCords(displayRect)[0] + handleRadius / 2,
+                    mEndCord.toAbsCords(displayRect)[1] + handleRadius / 2);
 
             if (startHandleClickArea.contains(
                     touchStartCord.toAbsCords(displayRect)[0],

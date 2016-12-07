@@ -2,9 +2,11 @@ package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.content.Context;
 import android.graphics.RectF;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 
 public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListener {
@@ -27,6 +29,9 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
         boolean isOneFinger = event.getPointerCount() == 1;
         CZRelCords relCoords = pixelCoordToImageRelativeCoord(event, getDisplayRect());
+        
+        handleMagnifierPosition(event);
+
 
         // Send absolute touch coordinates to the magnifier view
         mPhotoView.getMagnifierView().setFocusX(event.getX());
@@ -98,6 +103,31 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
         mPhotoView.invalidate();
         super.onTouch(v, event);
         return true;
+    }
+
+    public void handleMagnifierPosition(MotionEvent event) {
+        // check if we intercept with magnifier view
+        int fullWidth = mPhotoView.getWidth();
+        if (0 < event.getX() && event.getX() < (0.333f)*fullWidth) {
+            // in first third, move magnifier right
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPhotoView.getMagnifierView().getLayoutParams();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                params.removeRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+                mPhotoView.getMagnifierView().setLayoutParams(params);
+            }
+        }
+
+        if ((0.666f)*fullWidth < event.getX() && event.getX() < fullWidth) {
+            // in third third, move magnifier left
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPhotoView.getMagnifierView().getLayoutParams();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                params.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                mPhotoView.getMagnifierView().setLayoutParams(params);
+            }
+        }
     }
 
     // useful to work with relative distances
