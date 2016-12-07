@@ -53,25 +53,14 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
+    public void touchMoveRelative(float dx, float dy) {
+
+    }
+
+    @Override
     public void touchUp(float x, float y) {
         mCoords.add(new CZRelCords(x, y));
     }
-
-    @Override
-    public void moveStart() {
-
-    }
-
-    @Override
-    public void moveItem(float relDX, float relDY) {
-
-    }
-
-    @Override
-    public void moveFinished() {
-
-    }
-
 
     @Override
     public void draw(Canvas canvas, RectF displayRect) {
@@ -113,6 +102,11 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     @Override
     public boolean checkIfClicked(CZRelCords coords, RectF displayRect) {
         return false;
+    }
+
+    @Override
+    public void setActionState(CZDrawingActionState state) {
+
     }
 
     @Override

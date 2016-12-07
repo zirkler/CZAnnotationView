@@ -14,13 +14,9 @@ public interface CZIDrawingAction extends Serializable {
 
     void touchMove(float x, float y);
 
+    void touchMoveRelative(float dx, float dy);
+
     void touchUp(float x, float y);
-
-    void moveStart();
-
-    void moveItem(float relDX, float relDY);
-
-    void moveFinished();
 
     void draw(Canvas canvas, RectF displayRect);
 
@@ -37,4 +33,13 @@ public interface CZIDrawingAction extends Serializable {
     boolean checkBounds(float x, float y);
 
     boolean checkIfClicked(CZRelCords coords, RectF displayRect);
+
+    void setActionState(CZDrawingActionState state);
+
+    enum CZDrawingActionState {
+        ITEM_DRAWN,     // The item got drawn a long time ago
+        ITEM_DRAWING,   // The user is currently drawing this item
+        ITEM_SELECTED,  // The user selected the item
+        ITEM_MOVING     // THe user moved the item right now
+    }
 }

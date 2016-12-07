@@ -32,8 +32,8 @@ public class CZPhotoView extends PhotoView {
     private static final String BACKGROUND_TEMP_FILE_PATH = "czannotation_bg_tmp";
     private static final String BACKGROUND_TEMP_FILE_PATH_KEY = "bg_temp_";
     transient public CZAttacher attacher;
-    transient public MagnifierView mMagnifierView;
     Matrix mConcatMatrix = new Matrix();
+    transient private MagnifierView mMagnifierView;
     private CZIDrawingAction mCurrentDrawingAction;
     private List<CZIDrawingAction> mDrawnActions = new ArrayList<>();
     private List<CZIDrawingAction> mRedoActions = new ArrayList<>();
@@ -115,7 +115,6 @@ public class CZPhotoView extends PhotoView {
         drawBitmapPaint.setFilterBitmap(true);
         canvas.drawBitmap(mForeground, 0, 0, drawBitmapPaint);
 
-        mMagnifierView.setDisplayRect(mInitialDisplayRect);
         mMagnifierView.invalidate();
     }
 
@@ -155,7 +154,7 @@ public class CZPhotoView extends PhotoView {
         }
     }
 
-    public CZIDrawingAction getmCurrentDrawingAction() {
+    public CZIDrawingAction getCurrentDrawingAction() {
         return mCurrentDrawingAction;
     }
 
@@ -211,7 +210,7 @@ public class CZPhotoView extends PhotoView {
      * Returns the initial display rect.
      * @return Initial display rect.
      */
-    public RectF getmInitialDisplayRect() {
+    public RectF getInitialDisplayRect() {
         return mInitialDisplayRect;
     }
 
@@ -336,5 +335,11 @@ public class CZPhotoView extends PhotoView {
         return imagePath;
     }
 
+    public MagnifierView getMagnifierView() {
+        return mMagnifierView;
+    }
 
+    public void setMagnifierView(MagnifierView mMagnifierView) {
+        this.mMagnifierView = mMagnifierView;
+    }
 }

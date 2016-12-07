@@ -2,6 +2,7 @@ package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.content.Context;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,8 +28,10 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
         boolean isOneFinger = event.getPointerCount() == 1;
         CZRelCords relCoords = pixelCoordToImageRelativeCoord(event, getDisplayRect());
-        mPhotoView.mMagnifierView.ax = event.getX();
-        mPhotoView.mMagnifierView.ay = event.getY();
+
+        // Send absolute touch coordinates to the magnifier view
+        mPhotoView.getMagnifierView().setFocusX(event.getX());
+        mPhotoView.getMagnifierView().setFocusY(event.getY());
 
         // User lays a finger on the screen
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -36,8 +39,22 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             // User starts drawing
             if (isOneFinger && mCurrentState == CZState.READY_TO_DRAW) {
                 mCurrentState = CZState.CURRENTLY_DRAWING;
-                mPhotoView.setCurrentDrawingAction(mPhotoView.getmCurrentDrawingAction().createInstance(mContext, null));
-                mPhotoView.getmCurrentDrawingAction().touchStart(relCoords.getX(), relCoords.getY());
+                mPhotoView.setCurrentDrawingAction(mPhotoView.getCurrentDrawingAction().createInstance(mContext, null));
+                mPhotoView.getCurrentDrawingAction().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWING);
+                mPhotoView.getCurrentDrawingAction().touchStart(relCoords.getX(), relCoords.getY());
+            }
+
+            // User has an item selected and now lays a finger down
+            if (isOneFinger && mCurrentState == CZState.ITEM_SELECTED) {
+                // Check if user touched on the selected item (ie. to perform moving or editing)
+                if (mSelectedItem.checkIfClicked(relCoords, mPhotoView.getInitialDisplayRect())) {
+                    // keep the item selected ...
+                } else {
+                    // User touched somewhere else, not on the selected item, now unselect the item
+                    mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+                    mSelectedItem = null;
+                    mCurrentState = CZState.READY_TO_DRAW;
+                }
             }
         }
 
@@ -46,41 +63,34 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
             // User moved his drawing finger
             if (isOneFinger && mCurrentState == CZState.CURRENTLY_DRAWING) {
-                mPhotoView.getmCurrentDrawingAction().touchMove(relCoords.getX(), relCoords.getY());
-            } else if (isOneFinger && mCurrentState == CZState.MOVE) {
-
+                mPhotoView.getCurrentDrawingAction().touchMove(relCoords.getX(), relCoords.getY());
+            } else if (isOneFinger && mCurrentState == CZState.ITEM_SELECTED) {
+                Log.i("onTouch", String.format("rel X %f, rel Y %f", relCoords.getX(), relCoords.getY()));
             }
 
             // User moved finger while there is more then one finger on the screen
             if (!isOneFinger) {
-
                 if (mCurrentState == CZState.CURRENTLY_DRAWING) {
                     mPhotoView.cancelCurrentDrawingAction();
                     mCurrentState = CZState.READY_TO_DRAW;
-                } else if (mCurrentState == CZState.MOVE) {
-                    mSelectedItem.moveFinished();
+                } else if (mCurrentState == CZState.ITEM_SELECTED) {
+                    mPhotoView.cancelCurrentDrawingAction();
+                    mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
                     mSelectedItem = null;
                     mCurrentState = CZState.READY_TO_DRAW;
                 }
             }
         }
 
-
         // User lifted finger up
         if (event.getAction() == MotionEvent.ACTION_UP) {
 
             // User was drawing, now finger got lifted
             if (isOneFinger && mCurrentState == CZState.CURRENTLY_DRAWING) {
-                mPhotoView.getmCurrentDrawingAction().touchUp(relCoords.getX(), relCoords.getY());
+                mPhotoView.getCurrentDrawingAction().touchUp(relCoords.getX(), relCoords.getY());
+                mPhotoView.getCurrentDrawingAction().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
                 mPhotoView.userFinishedDrawing();
                 super.cancelFling();
-                mCurrentState = CZState.READY_TO_DRAW;
-            }
-
-            // User was moving, now finger got lifted
-            if (isOneFinger && mCurrentState == CZState.MOVE) {
-                mSelectedItem.moveFinished();
-                mSelectedItem = null;
                 mCurrentState = CZState.READY_TO_DRAW;
             }
         }
@@ -94,11 +104,12 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     @Override
     public void onDrag(float dx, float dy) {
 
-        if (mCurrentState == CZState.MOVE) {
+        if (mCurrentState == CZState.ITEM_SELECTED) {
             // user is dragging an item
             float relativeDX = dx / getDisplayRect().width();
             float relativeDY = dy / getDisplayRect().height();
-            mSelectedItem.moveItem(relativeDX, relativeDY);
+            mSelectedItem.touchMoveRelative(relativeDX, relativeDY);
+            Log.i("onDrag", String.format("relativeDX %f, DY %f", relativeDX, relativeDY));
 
         } else if (mCurrentState == CZState.READY_TO_DRAW) {
             // When user drags and is not drawing, we forward the translation information to
@@ -137,14 +148,15 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     public boolean onLongClick(View view, MotionEvent event) {
         CZRelCords cords = pixelCoordToImageRelativeCoord(event, getDisplayRect());
 
-        // Search the item stack begining form the for a clicked item
+        // Search the item stack beginning form the for a clicked item
         for (int i = mPhotoView.getDrawnActions().size() - 1; i >= 0; i--) {
             CZIDrawingAction currAction = mPhotoView.getDrawnActions().get(i);
-            if (currAction.checkIfClicked(cords, mPhotoView.getmInitialDisplayRect())) {
+            if (currAction.checkIfClicked(cords, mPhotoView.getInitialDisplayRect())) {
                 mPhotoView.cancelCurrentDrawingAction();
-                mCurrentState = CZState.MOVE;
+                mCurrentState = CZState.ITEM_SELECTED;
                 mSelectedItem = currAction;
                 mPhotoView.getItemClickListener().onItemLongClicked(currAction, event);
+                mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_SELECTED);
                 return true;
             }
         }
@@ -152,7 +164,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     }
 
     /**
-     * Here map the pixel values of coordinate to a image relative representation.
+     * Here we map the pixel values of coordinates to a image relative representation.
      * pX/Y contains values between 0 and 1, if the user touches inside the image.
      * pX = 1 if the touches on the most right pixel of the image,
      * pX = 0.0...01 if the user touches the most left pixel in the image.
@@ -171,8 +183,6 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     public enum CZState {
         READY_TO_DRAW,
         CURRENTLY_DRAWING,
-        MOVE,
-        EDIT,
-        VIEW
+        ITEM_SELECTED
     }
 }

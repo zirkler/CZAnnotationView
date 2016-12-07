@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -13,10 +12,9 @@ import android.view.ViewTreeObserver;
 public class MagnifierView extends View {
 
     public CZPhotoView mCZPhotoView;
-    public float ax;
-    public float ay;
-    Bitmap mBitmap;
-    RectF displayRect;
+    private Bitmap mBitmap;
+    private float mFocusX;
+    private float mFocusY;
 
     public MagnifierView(Context context) {
         super(context);
@@ -59,8 +57,8 @@ public class MagnifierView extends View {
             mBitmap.eraseColor(Color.WHITE);
             Canvas c = new Canvas(mBitmap);
             float scaleFactor = 2;
-            c.translate(-ax * scaleFactor + (getWidth() / 2),
-                        -ay * scaleFactor + (getHeight() / 2));
+            c.translate(-mFocusX * scaleFactor + (getWidth() / 2),
+                        -mFocusY * scaleFactor + (getHeight() / 2));
             c.scale(scaleFactor, scaleFactor);
             mCZPhotoView.draw(c);
 
@@ -68,7 +66,19 @@ public class MagnifierView extends View {
         }
     }
 
-    public void setDisplayRect(RectF displayRect) {
-        this.displayRect = displayRect;
+    public float getFocusX() {
+        return mFocusX;
+    }
+
+    public void setFocusX(float mFocusX) {
+        this.mFocusX = mFocusX;
+    }
+
+    public float getFocusY() {
+        return mFocusY;
+    }
+
+    public void setFocusY(float mFocusY) {
+        this.mFocusY = mFocusY;
     }
 }

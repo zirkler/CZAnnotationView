@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -43,6 +44,10 @@ public class AnnotationActivity extends AppCompatActivity {
     public static final String DRAWN_ACTIONS = "drawn_actions";
     public static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 101;
 
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
+
     @BindView(R.id.toolbar) Toolbar mToolbar;
     private CZAttacher mAttacher;
     private CZPhotoView mPhotoView;
@@ -68,7 +73,6 @@ public class AnnotationActivity extends AppCompatActivity {
             @Override
             public void onItemLongClicked(CZIDrawingAction item, MotionEvent e) {
                 Toast.makeText(AnnotationActivity.this, "Item got clicked", Toast.LENGTH_SHORT).show();
-                item.moveStart();
             }
         });
 
@@ -98,7 +102,7 @@ public class AnnotationActivity extends AppCompatActivity {
         // Setup magnifier view
         mMagnifierView = (MagnifierView) findViewById(R.id.magnifierView);
         mMagnifierView.mCZPhotoView = mPhotoView;
-        mPhotoView.mMagnifierView = mMagnifierView;
+        mPhotoView.setMagnifierView(mMagnifierView);
 
         // Ask for permission for writing to external storage (needed for exporting to gallery)
         String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE};

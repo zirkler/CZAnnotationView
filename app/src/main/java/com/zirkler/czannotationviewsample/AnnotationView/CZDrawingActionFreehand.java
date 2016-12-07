@@ -20,9 +20,11 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     private CZPaint mNormalPaint;
     private CZPaint mMovementPaint;
     private CZPaint mClickAreaPaint;
+    private CZPaint mSelectionPaint;
     private List<CZRelCords> mCoords = new ArrayList<>();
     transient private Path mPath;
     transient private List<CZLine> clickAreaLines = new ArrayList<>();
+    private CZDrawingActionState mState;
 
     public CZDrawingActionFreehand(Context context, CZPaint paint) {
         mCoords = new ArrayList<>();
@@ -36,6 +38,14 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
             mNormalPaint.setStrokeJoin(Paint.Join.ROUND);
             mNormalPaint.setStrokeCap(Paint.Cap.ROUND);
             mNormalPaint.setStrokeWidth(10);
+
+            mSelectionPaint = new CZPaint();
+            mSelectionPaint.setAntiAlias(true);
+            mSelectionPaint.setColor(Color.YELLOW);
+            mSelectionPaint.setStyle(Paint.Style.STROKE);
+            mSelectionPaint.setStrokeJoin(Paint.Join.ROUND);
+            mSelectionPaint.setStrokeCap(Paint.Cap.ROUND);
+            mSelectionPaint.setStrokeWidth(10);
 
             mMovementPaint = new CZPaint();
             mMovementPaint.setAntiAlias(true);
@@ -61,48 +71,45 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
 
     @Override
     public void touchStart(float x, float y) {
-        mX = x;
-        mY = y;
-        mCoords.add(new CZRelCords(x, y));
-    }
-
-    @Override
-    public void touchMove(float x, float y) {
-        /*mPath.quadTo(mX,
-                     mY,
-                     (x + mX) / 2,
-                     (y + mY) / 2); */
-
-
-        // user is currently drawing this item
-        mCoords.add(new CZRelCords(x, y));
-        mX = x;
-        mY = y;
-    }
-
-    @Override
-    public void touchUp(float x, float y) {
-        mCoords.add(new CZRelCords(x, y));
-        //mPath.lineTo(x, y);
-    }
-
-    @Override
-    public void moveStart() {
-        mPaint = mMovementPaint;
-    }
-
-    @Override
-    public void moveItem(float relDX, float relDY) {
-        for (int i = 0; i < mCoords.size(); i++) {
-            CZRelCords currCords = mCoords.get(i);
-            currCords.setX(currCords.getX() + relDX);
-            currCords.setY(currCords.getY() + relDY);
+        if (mState == CZDrawingActionState.ITEM_DRAWING) {
+            mX = x;
+            mY = y;
+            mCoords.add(new CZRelCords(x, y));
         }
     }
 
     @Override
-    public void moveFinished() {
-        mPaint = mNormalPaint;
+    public void touchMove(float x, float y) {
+        // user is currently drawing this item
+        if (mState == CZDrawingActionState.ITEM_DRAWING) {
+            mCoords.add(new CZRelCords(x, y));
+            mX = x;
+            mY = y;
+        }
+    }
+
+    @Override
+    public void touchMoveRelative(float dx, float dy) {
+        if (mState == CZDrawingActionState.ITEM_SELECTED) {
+            for (int i = 0; i < mCoords.size(); i++) {
+                CZRelCords currCords = mCoords.get(i);
+                currCords.setX(currCords.getX() + dx);
+                currCords.setY(currCords.getY() + dy);
+            }
+        }
+    }
+
+    @Override
+    public void touchUp(float x, float y) {
+        if (mState == CZDrawingActionState.ITEM_DRAWING) {
+            /*mPath.quadTo(mX,
+                     mY,
+                     (x + mX) / 2,
+                     (y + mY) / 2); */
+            mCoords.add(new CZRelCords(x, y));
+            //mPath.lineTo(x, y);
+        }
+
     }
 
     @Override
@@ -174,6 +181,16 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
         }
 
         return false;
+    }
+
+    @Override
+    public void setActionState(CZDrawingActionState state) {
+        mState = state;
+        if (state == CZDrawingActionState.ITEM_SELECTED) {
+            mPaint = mSelectionPaint;
+        } else if (state == CZDrawingActionState.ITEM_DRAWN){
+            mPaint = mNormalPaint;
+        }
     }
 
     @Override
