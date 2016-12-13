@@ -5,10 +5,10 @@ import android.view.MotionEvent;
 
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZIDrawingAction;
 
-public interface CZIItemLongClickListener {
+public interface CZItemLongClickListener {
 
     /**
-     * The onItemLongClicked callback gets called when an item on the photo view got clicked by the user.
+     * The onItemLongClicked callback gets called when an item on the photo view got "long-clicked" by the user.
      * @param item The clicked item.
      * @param event The corresponding android motion event.
      */

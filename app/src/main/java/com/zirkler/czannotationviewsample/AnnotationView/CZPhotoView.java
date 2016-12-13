@@ -47,7 +47,10 @@ public class CZPhotoView extends PhotoView {
     private RectF mInitialDisplayRect;
 
     transient private Context mContext;
-    private CZIItemLongClickListener mItemClickListener;
+
+    // Click listeners.
+    private CZItemLongClickListener mItemLongClickListener;
+    private CZItemShortClickListener mItemShortClickListener;
 
     public CZPhotoView(Context context) {
         super(context);
@@ -205,20 +208,7 @@ public class CZPhotoView extends PhotoView {
         this.mDrawnActions = mDrawnActions;
     }
 
-    /**
-     * @return Returns the item click listener.
-     */
-    public CZIItemLongClickListener getItemClickListener() {
-        return mItemClickListener;
-    }
 
-    /**
-     * Set the item click listener
-     * @param itemClickListener The to be set item click listener.
-     */
-    public void setOnItemLongClickListener(CZIItemLongClickListener itemClickListener) {
-        this.mItemClickListener = itemClickListener;
-    }
 
     /**
      * Returns the initial display rect.
@@ -374,5 +364,35 @@ public class CZPhotoView extends PhotoView {
 
     public void setMagnifierView(MagnifierView mMagnifierView) {
         this.mMagnifierView = mMagnifierView;
+    }
+
+    /**
+     * @return Returns the item long click listener.
+     */
+    public CZItemLongClickListener getItemLongClickListener() {
+        return mItemLongClickListener;
+    }
+
+    /**
+     * Set the item long click listener
+     * @param itemLongClickListener The to be set listener.
+     */
+    public void setOnItemLongClickListener(CZItemLongClickListener itemLongClickListener) {
+        this.mItemLongClickListener = itemLongClickListener;
+    }
+
+    /**
+     * @return Returns the item short click listener.
+     */
+    public CZItemShortClickListener getItemShortClickListener() {
+        return mItemShortClickListener;
+    }
+
+    /**
+     * Sets the item short click listener.
+     * @param mItemShortClickListener The to be set listener.
+     */
+    public void setOnItemShortClickListener(CZItemShortClickListener mItemShortClickListener) {
+        this.mItemShortClickListener = mItemShortClickListener;
     }
 }

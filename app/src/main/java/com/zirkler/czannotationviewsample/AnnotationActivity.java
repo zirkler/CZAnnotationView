@@ -14,6 +14,7 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,14 +22,17 @@ import android.view.MotionEvent;
 import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.zirkler.czannotationviewsample.AnnotationView.CZAttacher;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZDrawingActionEraser;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZDrawingActionFreehand;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZDrawingActionLine;
+import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZDrawingActionText;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZIDrawingAction;
-import com.zirkler.czannotationviewsample.AnnotationView.CZIItemLongClickListener;
+import com.zirkler.czannotationviewsample.AnnotationView.CZItemLongClickListener;
+import com.zirkler.czannotationviewsample.AnnotationView.CZItemShortClickListener;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
 import com.zirkler.czannotationviewsample.AnnotationView.MagnifierView;
 
@@ -72,10 +76,30 @@ public class AnnotationActivity extends AppCompatActivity {
         mPhotoView.setCurrentDrawingAction(new CZDrawingActionFreehand(AnnotationActivity.this, null));
 
         // Set onItemLongClickListener
-        mPhotoView.setOnItemLongClickListener(new CZIItemLongClickListener() {
+        mPhotoView.setOnItemLongClickListener(new CZItemLongClickListener() {
             @Override
             public void onItemLongClicked(CZIDrawingAction item, MotionEvent e) {
-                Toast.makeText(AnnotationActivity.this, "Item got clicked", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AnnotationActivity.this, "Item got long-clicked", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Set onItemShortClickListener
+        mPhotoView.setOnItemShortClickListener(new CZItemShortClickListener() {
+            @Override
+            public void onItemShortClicked(final CZIDrawingAction item, MotionEvent event) {
+                if (item instanceof CZDrawingActionText) {
+                    final CZDrawingActionText textItem = (CZDrawingActionText) item;
+                    new MaterialDialog.Builder(AnnotationActivity.this)
+                            .title("Change text")
+                            .content("Text Please.")
+                            .inputType(InputType.TYPE_CLASS_TEXT)
+                            .input("Text", textItem.getText(), new MaterialDialog.InputCallback() {
+                                @Override
+                                public void onInput(MaterialDialog dialog, CharSequence input) {
+                                    textItem.setText(input.toString());
+                                }
+                            }).show();
+                }
             }
         });
 
@@ -161,6 +185,24 @@ public class AnnotationActivity extends AppCompatActivity {
             EasyImage.openChooserWithDocuments(this, "Choose Background Image", 0);
         } else if (item.getItemId() == R.id.action_line) {
             mPhotoView.setCurrentDrawingAction(new CZDrawingActionLine(this, null));
+        } else if (item.getItemId() == R.id.action_text) {
+            // Ask user for text
+            new MaterialDialog.Builder(this)
+                    .title("Enter text")
+                    .content("Text Please.")
+                    .inputType(InputType.TYPE_CLASS_TEXT)
+                    .input("Text", "My Annotation Text", new MaterialDialog.InputCallback() {
+                        @Override
+                        public void onInput(MaterialDialog dialog, CharSequence input) {
+                            mPhotoView.setCurrentDrawingAction(new CZDrawingActionText(AnnotationActivity.this, null, input.toString()));
+                            mPhotoView.getCurrentDrawingAction().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+                            mPhotoView.userFinishedDrawing();
+                            mAttacher.setmCurrentState(CZAttacher.CZState.READY_TO_DRAW);
+                        }
+                    }).show();
+
+
+
         } else if (item.getItemId() == R.id.action_export) {
             // Export image and open in gallery, then open gallery (or do something different, put in an email or stuff)
             String imagePath = mPhotoView.exportAsJpg(this);

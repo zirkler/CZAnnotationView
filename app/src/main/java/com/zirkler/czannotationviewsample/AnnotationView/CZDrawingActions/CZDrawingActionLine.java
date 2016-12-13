@@ -17,11 +17,11 @@ public class CZDrawingActionLine implements CZIDrawingAction {
     public static final int CLICK_AREA_TOLERANCE = 15;
     private CZPaint mPaint;
     private CZPaint mNormalPaint;
-    transient private CZPaint mSelectionPaint;
-    transient private CZPaint mHandlePaint;
-    transient private CZRelCords mStartCord;
-    transient private CZRelCords mEndCord;
-    transient private CZDrawingActionState mState;
+    private CZPaint mSelectionPaint;
+    private CZPaint mHandlePaint;
+    private CZRelCords mStartCord;
+    private CZRelCords mEndCord;
+    private CZDrawingActionState mState;
     private CZRelCords mCurrentlyEditingCords;
     private int handleRadius = 60;
 

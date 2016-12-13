@@ -40,8 +40,6 @@ public interface CZIDrawingAction extends Serializable {
     enum CZDrawingActionState {
         ITEM_DRAWN,     // The item got drawn a long time ago
         ITEM_DRAWING,   // The user is currently drawing this item
-        ITEM_SELECTED,  // The user selected the item
-        ITEM_MOVING,    // The user moved the item right now
-        ITEM_EDITING    // The user edits the item right now
+        ITEM_SELECTED   // The user selected the item
     }
 }

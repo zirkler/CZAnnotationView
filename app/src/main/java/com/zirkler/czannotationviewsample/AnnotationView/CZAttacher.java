@@ -113,7 +113,11 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
                     mPhotoView.cancelCurrentDrawingAction();
                     mCurrentState = CZState.ITEM_SELECTED;
                     mSelectedItem = selectedItem;
-                    mPhotoView.getItemClickListener().onItemLongClicked(selectedItem, event);
+
+                    if (mPhotoView.getItemShortClickListener() != null) {
+                        mPhotoView.getItemShortClickListener().onItemShortClicked(selectedItem, event);
+                    }
+
                     mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_SELECTED);
                 }
             }
@@ -210,7 +214,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             mPhotoView.cancelCurrentDrawingAction();
             mCurrentState = CZState.ITEM_SELECTED;
             mSelectedItem = selectedItem;
-            mPhotoView.getItemClickListener().onItemLongClicked(selectedItem, event);
+            mPhotoView.getItemLongClickListener().onItemLongClicked(selectedItem, event);
             mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_SELECTED);
             return true;
         }
