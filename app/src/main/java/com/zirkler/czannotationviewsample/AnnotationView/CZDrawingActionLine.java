@@ -13,12 +13,11 @@ public class CZDrawingActionLine implements CZIDrawingAction {
     public static final int CLICK_AREA_TOLERANCE = 15;
     private CZPaint mPaint;
     private CZPaint mNormalPaint;
-    private CZPaint mMovementPaint;
-    private CZPaint mSelectionPaint;
-    private CZPaint mHandlePaint;
-    private CZRelCords mStartCord;
-    private CZRelCords mEndCord;
-    private CZDrawingActionState mState;
+    transient private CZPaint mSelectionPaint;
+    transient private CZPaint mHandlePaint;
+    transient private CZRelCords mStartCord;
+    transient private CZRelCords mEndCord;
+    transient private CZDrawingActionState mState;
     private CZRelCords mCurrentlyEditingCords;
     private int handleRadius = 60;
 
@@ -63,6 +62,7 @@ public class CZDrawingActionLine implements CZIDrawingAction {
         if (mState == CZDrawingActionState.ITEM_DRAWING) {
             mStartCord = new CZRelCords(x, y);
         } if (mState == CZDrawingActionState.ITEM_SELECTED) {
+
             // Check if user touched one of the handles
             RectF startHandleClickArea = new RectF(
                     mStartCord.toAbsCords(displayRect)[0] - handleRadius / 2,
@@ -76,13 +76,11 @@ public class CZDrawingActionLine implements CZIDrawingAction {
                     mEndCord.toAbsCords(displayRect)[0] + handleRadius / 2,
                     mEndCord.toAbsCords(displayRect)[1] + handleRadius / 2);
 
-            if (startHandleClickArea.contains(
-                    touchStartCord.toAbsCords(displayRect)[0],
-                    touchStartCord.toAbsCords(displayRect)[1])) {
+            if (startHandleClickArea.contains(touchStartCord.toAbsCords(displayRect)[0],
+                                              touchStartCord.toAbsCords(displayRect)[1])) {
                 mCurrentlyEditingCords = mStartCord;
-            } else if (endHandleClickArea.contains(
-                    touchStartCord.toAbsCords(displayRect)[0],
-                    touchStartCord.toAbsCords(displayRect)[1])) {
+            } else if (endHandleClickArea.contains(touchStartCord.toAbsCords(displayRect)[0],
+                                                   touchStartCord.toAbsCords(displayRect)[1])) {
                 mCurrentlyEditingCords = mEndCord;
             } else {
                 mCurrentlyEditingCords = null;
@@ -179,8 +177,32 @@ public class CZDrawingActionLine implements CZIDrawingAction {
 
     @Override
     public boolean checkIfClicked(CZRelCords clickCords, RectF displayRect, Context context) {
-        float clickX = clickCords.toAbsCords(displayRect)[0];
-        float clickY = clickCords.toAbsCords(displayRect)[1];
+
+        // Allow to long press on end of line and directly extend / shrink it
+        RectF startHandleClickArea = new RectF(
+                mStartCord.toAbsCords(displayRect)[0] - handleRadius / 2,
+                mStartCord.toAbsCords(displayRect)[1] - handleRadius / 2,
+                mStartCord.toAbsCords(displayRect)[0] + handleRadius / 2,
+                mStartCord.toAbsCords(displayRect)[1] + handleRadius / 2);
+
+        RectF endHandleClickArea = new RectF(
+                mEndCord.toAbsCords(displayRect)[0] - handleRadius / 2,
+                mEndCord.toAbsCords(displayRect)[1] - handleRadius / 2,
+                mEndCord.toAbsCords(displayRect)[0] + handleRadius / 2,
+                mEndCord.toAbsCords(displayRect)[1] + handleRadius / 2);
+
+        if (startHandleClickArea.contains(clickCords.toAbsCords(displayRect)[0],
+                                          clickCords.toAbsCords(displayRect)[1])) {
+            mCurrentlyEditingCords = mStartCord;
+            return true;
+        } else if (endHandleClickArea.contains(clickCords.toAbsCords(displayRect)[0],
+                                               clickCords.toAbsCords(displayRect)[1])) {
+            mCurrentlyEditingCords = mEndCord;
+            return true;
+        } else {
+            mCurrentlyEditingCords = null;
+        }
+
 
         // If distance from point to line is smaller then tolerance, it's a click on the line
         double absoluteDistance = CZPhotoView.pointToSegmentDistance(
@@ -192,33 +214,6 @@ public class CZDrawingActionLine implements CZIDrawingAction {
 
         if (deviceIndependentDistance <= CLICK_AREA_TOLERANCE) {
             return true;
-        }
-
-        // If user selected the item, we also interprete a click on the handles as an click on the item
-        if (mState == CZDrawingActionState.ITEM_SELECTED) {
-            RectF startHandleClickArea = new RectF(
-                    mStartCord.toAbsCords(displayRect)[0] - CLICK_AREA_TOLERANCE / 2,
-                    mStartCord.toAbsCords(displayRect)[1] - CLICK_AREA_TOLERANCE / 2,
-                    mStartCord.toAbsCords(displayRect)[0] + CLICK_AREA_TOLERANCE / 2,
-                    mStartCord.toAbsCords(displayRect)[1] + CLICK_AREA_TOLERANCE / 2);
-
-            RectF endHandleClickArea = new RectF(
-                    mEndCord.toAbsCords(displayRect)[0] - CLICK_AREA_TOLERANCE / 2,
-                    mEndCord.toAbsCords(displayRect)[1] - CLICK_AREA_TOLERANCE / 2,
-                    mEndCord.toAbsCords(displayRect)[0] + CLICK_AREA_TOLERANCE / 2,
-                    mEndCord.toAbsCords(displayRect)[1] + CLICK_AREA_TOLERANCE / 2);
-
-            if (startHandleClickArea.contains(
-                    clickCords.toAbsCords(displayRect)[0],
-                    clickCords.toAbsCords(displayRect)[1])) {
-                return true;
-            } else if (endHandleClickArea.contains(
-                    clickCords.toAbsCords(displayRect)[0],
-                    clickCords.toAbsCords(displayRect)[1])) {
-                return true;
-            } else {
-                mCurrentlyEditingCords = null;
-            }
         }
 
         return false;
