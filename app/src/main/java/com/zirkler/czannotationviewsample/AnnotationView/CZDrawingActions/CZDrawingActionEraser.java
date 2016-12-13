@@ -113,7 +113,7 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
-    public List<CZRelCords> getCoords() {
+    public List<CZRelCords> getCords() {
         return mCoords;
     }
 }

@@ -229,7 +229,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     }
 
     @Override
-    public List<CZRelCords> getCoords() {
+    public List<CZRelCords> getCords() {
         return mCoords;
     }
 }

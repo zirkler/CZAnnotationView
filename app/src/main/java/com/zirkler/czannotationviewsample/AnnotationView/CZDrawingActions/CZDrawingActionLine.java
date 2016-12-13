@@ -155,7 +155,7 @@ public class CZDrawingActionLine implements CZIDrawingAction {
     }
 
     @Override
-    public List<CZRelCords> getCoords() {
+    public List<CZRelCords> getCords() {
         return null;
     }
 

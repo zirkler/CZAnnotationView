@@ -25,7 +25,7 @@ public interface CZIDrawingAction extends Serializable {
 
     CZIDrawingAction createInstance(Context context, CZPaint paint);
 
-    List<CZRelCords> getCoords();
+    List<CZRelCords> getCords();
 
     CZPaint getPaint();
 
