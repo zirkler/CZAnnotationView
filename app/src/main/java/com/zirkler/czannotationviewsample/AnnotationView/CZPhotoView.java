@@ -19,6 +19,7 @@ import android.view.ViewTreeObserver;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -229,49 +230,69 @@ public class CZPhotoView extends PhotoView {
         return mInitialDisplayRect;
     }
 
-    public void saveToFile(Context context, String filename) {
-        try {
-            CZStorageContainer container = new CZStorageContainer();
-            container.drawnActions = getDrawnActions();
-            container.bitmapBytes = bitmapToBytes(((BitmapDrawable) getDrawable()).getBitmap());
-
-            FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
-            ObjectOutputStream os = new ObjectOutputStream(fos);
-            os.writeObject(container);
-            os.close();
-            fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    /**
+     * Saves the drawn items to disk.
+     * This does not save the background picture,
+     * background picture gets saved by {@link #setBackgroundPicture(Bitmap, CZAttacher, Context, String)} automatically when setting it.
+     * @param context Context.
+     * @param filename Filename.
+     * @throws IOException
+     */
+    public void saveToFile(Context context, String filename) throws IOException {
+        FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
+        ObjectOutputStream os = new ObjectOutputStream(fos);
+        os.writeObject(getDrawnActions());
+        os.close();
+        fos.close();
     }
 
-    public void loadFromFile(Context context, CZAttacher attacher, String filename) {
-        try {
-            FileInputStream fis = context.openFileInput(filename);
-            ObjectInputStream is = new ObjectInputStream(fis);
+    /**
+     * Loads drawn items and the background picture into the CZDrawingView.
+     * @param context Context.
+     * @param attacher CZAttacher.
+     * @param filename Filename.
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public void loadFromFile(Context context, CZAttacher attacher, String filename) throws IOException, ClassNotFoundException {
+        FileInputStream fis = context.openFileInput(filename);
+        ObjectInputStream is = new ObjectInputStream(fis);
 
-            CZStorageContainer container = (CZStorageContainer) is.readObject();
-            mDrawnActions = container.drawnActions;
-            Bitmap backgroundBitmap = bytesToBitmap(container.bitmapBytes);
+        // load the drawn actions
+        List<CZIDrawingAction> drawnActions = (List<CZIDrawingAction>) is.readObject();
+        mDrawnActions = drawnActions;
 
-            setImageBitmap(backgroundBitmap);
-            attacher.update();
-            invalidate();
-            is.close();
-            fis.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // load the background image
+        fis = context.openFileInput(filename + "_image");
+        is = new ObjectInputStream(fis);
+        byte[] bitmapBytes = (byte[]) is.readObject();
+        Bitmap backgroundBitmap = bytesToBitmap(bitmapBytes);
+        setImageBitmap(backgroundBitmap);
+
+        attacher.update();
+        invalidate();
+        is.close();
+        fis.close();
+
         attacher.onScale(0, 0, 0); // just called to force rescaling of drawings
     }
 
     /**
-     * Sets the background image of the component. Also updates PhotoView attacher.
+     * Sets the background image of the component.
+     * Also updates PhotoView attacher and saves the image to the device disk.
      * @param backgroundBitmap
      * @param attacher
      * @param context
      */
-    public void setBackgroundPicture(Bitmap backgroundBitmap, CZAttacher attacher, Context context) {
+    public void setBackgroundPicture(Bitmap backgroundBitmap, CZAttacher attacher, Context context, String filename) throws IOException {
+        // Save the background picture on the device
+        FileOutputStream fos = context.openFileOutput(filename + "_image", Context.MODE_PRIVATE);
+        ObjectOutputStream os = new ObjectOutputStream(fos);
+        os.writeObject(bitmapToBytes(backgroundBitmap));
+        os.close();
+        fos.close();
+
+        // set it to the CZPhotoView
         setImageBitmap(backgroundBitmap);
         invalidate();
         attacher.update();

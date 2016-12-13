@@ -33,6 +33,7 @@ import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
 import com.zirkler.czannotationviewsample.AnnotationView.MagnifierView;
 
 import java.io.File;
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -85,7 +86,11 @@ public class AnnotationActivity extends AppCompatActivity {
 
         if (file.exists()) {
             // load the saved file
-            mPhotoView.loadFromFile(this, mAttacher, mFileName);
+            try {
+                mPhotoView.loadFromFile(this, mAttacher, mFileName);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else {
             // load the default background into the view
             Picasso.with(this).load(R.drawable.background).into(mPhotoView, new Callback() {
@@ -173,7 +178,11 @@ public class AnnotationActivity extends AppCompatActivity {
             @Override
             public void onImagePicked(File imageFile, EasyImage.ImageSource source, int type) {
                 Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath());
-                mPhotoView.setBackgroundPicture(bitmap, mAttacher, AnnotationActivity.this);
+                try {
+                    mPhotoView.setBackgroundPicture(bitmap, mAttacher, AnnotationActivity.this, mFileName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -188,20 +197,20 @@ public class AnnotationActivity extends AppCompatActivity {
         mPhotoView.redo();
     }
 
-    @OnClick(R.id.bttSaveToFile)
-    public void bttSaveToFileClicked() {
-        mPhotoView.saveToFile(this, mFileName);
-    }
-
-    @OnClick(R.id.bttLoadFromFile)
-    public void bttLoadFromFile() {
-        mPhotoView.loadFromFile(this, mAttacher, mFileName);
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mAttacher.cleanup();
+    }
+
+    @Override
+    protected void onStop() {
+        try {
+            mPhotoView.saveToFile(this, mFileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        super.onStop();
     }
 
     private void setupToolbar() {
