@@ -95,11 +95,6 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
-    public boolean checkBounds(float x, float y) {
-        return false;
-    }
-
-    @Override
     public boolean checkIfClicked(CZRelCords cords, RectF displayRect, Context context) {
         return false;
     }

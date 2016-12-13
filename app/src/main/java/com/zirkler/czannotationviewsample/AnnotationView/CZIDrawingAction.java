@@ -30,8 +30,6 @@ public interface CZIDrawingAction extends Serializable {
 
     boolean isErasable();
 
-    boolean checkBounds(float x, float y);
-
     boolean checkIfClicked(CZRelCords cords, RectF displayRect, Context context);
 
     void setActionState(CZDrawingActionState state);
