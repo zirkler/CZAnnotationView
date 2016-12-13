@@ -15,8 +15,8 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     private Context mContext;
     private CZPhotoView mPhotoView;
     private CZState mCurrentState = CZState.READY_TO_DRAW;
-
     private CZIDrawingAction mSelectedItem;
+    private CZRelCords touchDownCords;
 
     public CZAttacher(ImageView imageView) {
         super(imageView);
@@ -43,6 +43,9 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
         // User lays a finger on the screen
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+            // Store touch down cords, on touch up we check if user performed any movements.
+            touchDownCords = relCoords;
 
             // User starts drawing
             if (isOneFinger && mCurrentState == CZState.READY_TO_DRAW) {
@@ -93,6 +96,25 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
         // User lifted finger up
         if (event.getAction() == MotionEvent.ACTION_UP) {
+
+            // Check if user "short-clicked" a drawn item
+            if (touchDownCords.getX() == relCoords.getX() && touchDownCords.getY() == relCoords.getY()) {
+
+                // Search for eventually clicked item
+                CZIDrawingAction selectedItem = searchForSelectedItem(touchDownCords);
+                if (selectedItem != null) {
+                    // reset eventually already selected item
+                    if (mSelectedItem != null) {
+                        mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+                    }
+
+                    mPhotoView.cancelCurrentDrawingAction();
+                    mCurrentState = CZState.ITEM_SELECTED;
+                    mSelectedItem = selectedItem;
+                    mPhotoView.getItemClickListener().onItemLongClicked(selectedItem, event);
+                    mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_SELECTED);
+                }
+            }
 
             // User was drawing, now finger got lifted
             if (isOneFinger && mCurrentState == CZState.CURRENTLY_DRAWING) {
@@ -181,17 +203,14 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             return true;
         }
 
-        // Search the item stack beginning form the for a clicked item
-        for (int i = mPhotoView.getDrawnActions().size() - 1; i >= 0; i--) {
-            CZIDrawingAction currAction = mPhotoView.getDrawnActions().get(i);
-            if (currAction.checkIfClicked(cords, mPhotoView.getInitialDisplayRect(), mContext)) {
-                mPhotoView.cancelCurrentDrawingAction();
-                mCurrentState = CZState.ITEM_SELECTED;
-                mSelectedItem = currAction;
-                mPhotoView.getItemClickListener().onItemLongClicked(currAction, event);
-                mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_SELECTED);
-                return true;
-            }
+        CZIDrawingAction selectedItem = searchForSelectedItem(cords);
+        if (selectedItem != null) {
+            mPhotoView.cancelCurrentDrawingAction();
+            mCurrentState = CZState.ITEM_SELECTED;
+            mSelectedItem = selectedItem;
+            mPhotoView.getItemClickListener().onItemLongClicked(selectedItem, event);
+            mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_SELECTED);
+            return true;
         }
         return false;
     }
@@ -237,6 +256,22 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
         coords.setX((event.getX() - getDisplayRect().left) / displayRect.width());
         coords.setY((event.getY() - getDisplayRect().top) / displayRect.height());
         return coords;
+    }
+
+    /**
+     * Search through the already drawn item if one of them got clicked by the clickCords.
+     * @param clickCords The coordinates which should be checked if they belong to the clickarea of any of the drawn items.
+     * @return Returns the clicked item. If nothing got clicked, this method return null.
+     */
+    private CZIDrawingAction searchForSelectedItem(CZRelCords clickCords) {
+        CZIDrawingAction selectedItem = null;
+        for (int i = mPhotoView.getDrawnActions().size() - 1; i >= 0; i--) {
+            CZIDrawingAction currAction = mPhotoView.getDrawnActions().get(i);
+            if (currAction.checkIfClicked(clickCords, mPhotoView.getInitialDisplayRect(), mContext)) {
+                selectedItem = currAction;
+            }
+        }
+        return selectedItem;
     }
 
     public enum CZState {
