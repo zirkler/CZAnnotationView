@@ -37,6 +37,7 @@ public class CZPaint extends Paint implements Serializable {
             super.setStrokeCap(mStrokeCap);
         }
 
+        super.setStrokeWidth(mStrokeWidth);
         super.setTextSize(mTextSize);
     }
 
