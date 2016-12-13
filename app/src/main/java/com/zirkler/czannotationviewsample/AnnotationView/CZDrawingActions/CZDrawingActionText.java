@@ -17,7 +17,7 @@ public class CZDrawingActionText implements CZIDrawingAction {
     private CZPaint mTextPaint;
     private CZPaint mPaint;
     private CZDrawingActionState mState;
-    private RectF mRect;
+    transient private RectF mRect;
     private String mText = "NO TEXT PROVIDED";
 
     public CZDrawingActionText(Context context, CZPaint textPaint, String text) {
@@ -29,6 +29,7 @@ public class CZDrawingActionText implements CZIDrawingAction {
             mTextPaint = new CZPaint();
             mTextPaint.setAntiAlias(true);
             mTextPaint.setColor(Color.BLACK);
+            mTextPaint.setStyle(Paint.Style.FILL_AND_STROKE);
             mTextPaint.setTextSize(40);
 
             mPaint = new CZPaint();
@@ -79,7 +80,7 @@ public class CZDrawingActionText implements CZIDrawingAction {
         float textPosX = mCords.toAbsCordsAsPoint(displayRect).x;
         float textPosY = mCords.toAbsCordsAsPoint(displayRect).y;
 
-        // draw a rectangle around the mText
+        // draw a rectangle around the text
         mRect = new RectF(
                     textPosX,
                     (textPosY - textHeight),
@@ -116,6 +117,8 @@ public class CZDrawingActionText implements CZIDrawingAction {
 
     @Override
     public boolean checkIfClicked(CZRelCords cords, RectF displayRect, Context context) {
+        if (mRect == null) return false;
+
         if (mRect.contains(cords.toAbsCordsAsPoint(displayRect).x,
                            cords.toAbsCordsAsPoint(displayRect).y)) {
             return true;
@@ -140,4 +143,5 @@ public class CZDrawingActionText implements CZIDrawingAction {
     public void setText(String mText) {
         this.mText = mText;
     }
+
 }

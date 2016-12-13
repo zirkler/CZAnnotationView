@@ -24,10 +24,19 @@ public class CZPaint extends Paint implements Serializable {
 
         super.setAntiAlias(mAntiAlias);
         super.setColor(mColor);
-        super.setStyle(mStyle);
-        super.setStrokeJoin(mStrokeJoin);
-        super.setStrokeCap(mStrokeCap);
-        super.setStrokeWidth(mStrokeWidth);
+
+        if (mStyle != null) {
+            super.setStyle(mStyle);
+        }
+
+        if (mStrokeJoin != null) {
+            super.setStrokeJoin(mStrokeJoin);
+        }
+
+        if (mStrokeCap != null) {
+            super.setStrokeCap(mStrokeCap);
+        }
+
         super.setTextSize(mTextSize);
     }
 
