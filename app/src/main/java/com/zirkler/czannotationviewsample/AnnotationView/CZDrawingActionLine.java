@@ -171,11 +171,6 @@ public class CZDrawingActionLine implements CZIDrawingAction {
     }
 
     @Override
-    public boolean checkBounds(float x, float y) {
-        return false;
-    }
-
-    @Override
     public boolean checkIfClicked(CZRelCords clickCords, RectF displayRect, Context context) {
 
         // Allow to long press on end of line and directly extend / shrink it
@@ -204,7 +199,7 @@ public class CZDrawingActionLine implements CZIDrawingAction {
         }
 
 
-        // If distance from point to line is smaller then tolerance, it's a click on the line
+        // If distance from point to line is smaller then tolerance, it's a click on this line
         double absoluteDistance = CZPhotoView.pointToSegmentDistance(
                 mStartCord.toAbsCordsAsPoint(displayRect),
                 mEndCord.toAbsCordsAsPoint(displayRect),
