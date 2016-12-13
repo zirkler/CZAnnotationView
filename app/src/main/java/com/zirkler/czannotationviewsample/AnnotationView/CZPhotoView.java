@@ -43,7 +43,7 @@ public class CZPhotoView extends PhotoView {
     private Bitmap mForeground;
     private Paint mBitmapPaint;
     private RectF mInitialDisplayRect;
-    private String mTempBackgroundImagePath;
+
     transient private Context mContext;
     private CZIItemLongClickListener mItemClickListener;
 
@@ -74,10 +74,6 @@ public class CZPhotoView extends PhotoView {
         float dy = y - p.y;
         double dist = Math.sqrt(dx * dx + dy * dy);
         return dist;
-    }
-
-    public String getmTempBackgroundImagePath() {
-        return mTempBackgroundImagePath;
     }
 
     private void setup(Context context) {

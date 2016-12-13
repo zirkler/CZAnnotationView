@@ -74,6 +74,8 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
     private final Matrix mSuppMatrix = new Matrix();
     private final RectF mDisplayRect = new RectF();
     private final float[] mMatrixValues = new float[9];
+    // Gesture Detectors
+    protected GestureDetector mGestureDetector;
     int ZOOM_DURATION = DEFAULT_ZOOM_DURATION;
     private Interpolator mInterpolator = new AccelerateDecelerateInterpolator();
     private float mMinScale = DEFAULT_MIN_SCALE;
@@ -82,9 +84,6 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
     private boolean mAllowParentInterceptOnEdge = true;
     private boolean mBlockParentIntercept = false;
     private WeakReference<ImageView> mImageView;
-    // Gesture Detectors
-    private GestureDetector mGestureDetector;
-
     private com.zirkler.czannotationviewsample.AnnotationView.gestures.GestureDetector mScaleDragDetector;
     // Listeners
     private OnMatrixChangedListener mMatrixChangeListener;
@@ -102,6 +101,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
     public PhotoViewAttacher(ImageView imageView) {
         this(imageView, true);
     }
+
     public PhotoViewAttacher(ImageView imageView, boolean zoomable) {
         mImageView = new WeakReference<>(imageView);
 
@@ -149,10 +149,12 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
                             return mSingleFlingListener.onFling(e1, e2, velocityX, velocityY);
                         }
                         return false;
-                    }
+                }
                 });
 
-        mGestureDetector.setOnDoubleTapListener(new DefaultOnDoubleTapListener(this));
+
+
+
         mBaseRotation = 0.0f;
 
         // Finally, update the UI so that we're zoomable
@@ -215,7 +217,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
         if (newOnDoubleTapListener != null) {
             this.mGestureDetector.setOnDoubleTapListener(newOnDoubleTapListener);
         } else {
-            this.mGestureDetector.setOnDoubleTapListener(new DefaultOnDoubleTapListener(this));
+            this.mGestureDetector.setOnDoubleTapListener(new DefaultOnDoubleTapListener(null, null));
         }
     }
 

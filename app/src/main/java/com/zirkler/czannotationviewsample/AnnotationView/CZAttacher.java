@@ -15,6 +15,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     private Context mContext;
     private CZPhotoView mPhotoView;
     private CZState mCurrentState = CZState.READY_TO_DRAW;
+
     private CZIDrawingAction mSelectedItem;
 
     public CZAttacher(ImageView imageView) {
@@ -22,6 +23,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
         mContext = imageView.getContext();
         mPhotoView = (CZPhotoView) imageView;
         this.setOnLongClickListener(this);
+        mGestureDetector.setOnDoubleTapListener(new DefaultOnDoubleTapListener(this, mPhotoView));
     }
 
     @Override
@@ -128,7 +130,6 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
             }
         }
-
     }
 
     // useful to work with relative distances
@@ -150,6 +151,13 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
     @Override
     public void onScale(float scaleFactor, float focusX, float focusY) {
+        // Deselect a maybe selected item
+        mCurrentState = CZState.READY_TO_DRAW;
+        if (mSelectedItem != null) {
+            mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+            mSelectedItem = null;
+        }
+
         // When user scales we forward the scaling information to the matrix in the photoview to adjust the draw canvas.
         super.onScale(scaleFactor, focusX, focusY);
         super.getSuppMatrix(mPhotoView.mConcatMatrix);
@@ -164,18 +172,14 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
         }
     }
 
-    public CZPhotoView getPhotoView() {
-        return mPhotoView;
-    }
-
-    public void setPhotoView(CZPhotoView mPhotoView) {
-        this.mPhotoView = mPhotoView;
-    }
-
-
     @Override
     public boolean onLongClick(View view, MotionEvent event) {
         CZRelCords cords = pixelCoordToImageRelativeCoord(event, getDisplayRect());
+
+        // If user is currently zooming we do not allow any selections.
+        if (mCurrentState == CZState.DOUBLE_TAP_ZOOMING) {
+            return true;
+        }
 
         // Search the item stack beginning form the for a clicked item
         for (int i = mPhotoView.getDrawnActions().size() - 1; i >= 0; i--) {
@@ -190,6 +194,32 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             }
         }
         return false;
+    }
+
+
+
+    public CZPhotoView getPhotoView() {
+        return mPhotoView;
+    }
+
+    public void setPhotoView(CZPhotoView mPhotoView) {
+        this.mPhotoView = mPhotoView;
+    }
+
+    public CZState getmCurrentState() {
+        return mCurrentState;
+    }
+
+    public void setmCurrentState(CZState mCurrentState) {
+        this.mCurrentState = mCurrentState;
+    }
+
+    public CZIDrawingAction getSelectedItem() {
+        return mSelectedItem;
+    }
+
+    public void setSelectedItem(CZIDrawingAction mSelectedItem) {
+        this.mSelectedItem = mSelectedItem;
     }
 
     /**
@@ -212,6 +242,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     public enum CZState {
         READY_TO_DRAW,
         CURRENTLY_DRAWING,
-        ITEM_SELECTED
+        ITEM_SELECTED,
+        DOUBLE_TAP_ZOOMING
     }
 }

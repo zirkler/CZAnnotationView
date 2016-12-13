@@ -1,26 +1,27 @@
 package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
 /**
- * Provided default implementation of GestureDetector.OnDoubleTapListener, to be overridden with custom behavior, if needed
- * <p>&nbsp;</p>
- * To be used via {@link uk.co.senab.photoview.PhotoViewAttacher#setOnDoubleTapListener(GestureDetector.OnDoubleTapListener)}
+ * Provided default implementation of GestureDetector.OnDoubleTapListener, to be overridden with custom behavior, if needed.
  */
 public class DefaultOnDoubleTapListener implements GestureDetector.OnDoubleTapListener {
 
-    private PhotoViewAttacher photoViewAttacher;
+    private CZAttacher mCZAttacher;
+    private CZPhotoView mCZPhotoView;
 
     /**
      * Default constructor
      *
      * @param photoViewAttacher PhotoViewAttacher to bind to
      */
-    public DefaultOnDoubleTapListener(PhotoViewAttacher photoViewAttacher) {
-        setPhotoViewAttacher(photoViewAttacher);
+    public DefaultOnDoubleTapListener(CZAttacher photoViewAttacher, CZPhotoView photoView) {
+        setmCZAttacher(photoViewAttacher);
+        mCZPhotoView = photoView;
     }
 
     /**
@@ -28,19 +29,19 @@ public class DefaultOnDoubleTapListener implements GestureDetector.OnDoubleTapLi
      *
      * @param newPhotoViewAttacher PhotoViewAttacher to bind to
      */
-    public void setPhotoViewAttacher(PhotoViewAttacher newPhotoViewAttacher) {
-        this.photoViewAttacher = newPhotoViewAttacher;
+    public void setmCZAttacher(CZAttacher newPhotoViewAttacher) {
+        this.mCZAttacher = newPhotoViewAttacher;
     }
 
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
-        if (this.photoViewAttacher == null)
+        if (this.mCZAttacher == null)
             return false;
 
-        ImageView imageView = photoViewAttacher.getImageView();
+        ImageView imageView = mCZAttacher.getImageView();
 
-        if (null != photoViewAttacher.getOnPhotoTapListener()) {
-            final RectF displayRect = photoViewAttacher.getDisplayRect();
+        if (null != mCZAttacher.getOnPhotoTapListener()) {
+            final RectF displayRect = mCZAttacher.getDisplayRect();
 
             if (null != displayRect) {
                 final float x = e.getX(), y = e.getY();
@@ -53,15 +54,15 @@ public class DefaultOnDoubleTapListener implements GestureDetector.OnDoubleTapLi
                     float yResult = (y - displayRect.top)
                             / displayRect.height();
 
-                    photoViewAttacher.getOnPhotoTapListener().onPhotoTap(imageView, xResult, yResult);
+                    mCZAttacher.getOnPhotoTapListener().onPhotoTap(imageView, xResult, yResult);
                     return true;
                 }else{
-                    photoViewAttacher.getOnPhotoTapListener().onOutsidePhotoTap();
+                    mCZAttacher.getOnPhotoTapListener().onOutsidePhotoTap();
                 }
             }
         }
-        if (null != photoViewAttacher.getOnViewTapListener()) {
-            photoViewAttacher.getOnViewTapListener().onViewTap(imageView, e.getX(), e.getY());
+        if (null != mCZAttacher.getOnViewTapListener()) {
+            mCZAttacher.getOnViewTapListener().onViewTap(imageView, e.getX(), e.getY());
         }
 
         return false;
@@ -69,25 +70,37 @@ public class DefaultOnDoubleTapListener implements GestureDetector.OnDoubleTapLi
 
     @Override
     public boolean onDoubleTap(MotionEvent ev) {
-        if (photoViewAttacher == null)
+
+        if (mCZAttacher == null)
             return false;
 
+        Log.i("onDoubleTap before ", mCZAttacher.getmCurrentState().toString());
+        mCZAttacher.setmCurrentState(CZAttacher.CZState.DOUBLE_TAP_ZOOMING);
+        Log.i("asd", mCZAttacher.getmCurrentState().toString());
+        if (mCZAttacher.getSelectedItem() != null) {
+            mCZAttacher.getSelectedItem().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+            mCZAttacher.setSelectedItem(null);
+        }
+
         try {
-            float scale = photoViewAttacher.getScale();
+            float scale = mCZAttacher.getScale();
             float x = ev.getX();
             float y = ev.getY();
 
-            if (scale < photoViewAttacher.getMediumScale()) {
-                photoViewAttacher.setScale(photoViewAttacher.getMediumScale(), x, y, true);
-            } else if (scale >= photoViewAttacher.getMediumScale() && scale < photoViewAttacher.getMaximumScale()) {
-                photoViewAttacher.setScale(photoViewAttacher.getMaximumScale(), x, y, true);
+            if (scale < mCZAttacher.getMediumScale()) {
+                mCZAttacher.setScale(mCZAttacher.getMediumScale(), x, y, true);
+            } else if (scale >= mCZAttacher.getMediumScale() && scale < mCZAttacher.getMaximumScale()) {
+                mCZAttacher.setScale(mCZAttacher.getMaximumScale(), x, y, true);
             } else {
-                photoViewAttacher.setScale(photoViewAttacher.getMinimumScale(), x, y, true);
+                mCZAttacher.setScale(mCZAttacher.getMinimumScale(), x, y, true);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             // Can sometimes happen when getX() and getY() is called
         }
 
+        Log.i("asd finsihed double tap", mCZAttacher.getmCurrentState().toString());
+        mCZAttacher.setmCurrentState(CZAttacher.CZState.READY_TO_DRAW);
+        Log.i("asd", mCZAttacher.getmCurrentState().toString());
         return true;
     }
 
@@ -95,6 +108,14 @@ public class DefaultOnDoubleTapListener implements GestureDetector.OnDoubleTapLi
     public boolean onDoubleTapEvent(MotionEvent e) {
         // Wait for the confirmed onDoubleTap() instead
         return false;
+    }
+
+    public CZPhotoView getmCZPhotoView() {
+        return mCZPhotoView;
+    }
+
+    public void setmCZPhotoView(CZPhotoView mCZPhotoView) {
+        this.mCZPhotoView = mCZPhotoView;
     }
 
 }
