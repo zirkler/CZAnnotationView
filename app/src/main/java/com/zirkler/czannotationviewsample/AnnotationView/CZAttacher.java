@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZIDrawingAction;
+
 
 public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListener {
 

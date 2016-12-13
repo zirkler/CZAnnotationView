@@ -1,10 +1,14 @@
-package com.zirkler.czannotationviewsample.AnnotationView;
+package com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+
+import com.zirkler.czannotationviewsample.AnnotationView.CZPaint;
+import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
+import com.zirkler.czannotationviewsample.AnnotationView.CZRelCords;
 
 import java.util.List;
 

@@ -3,6 +3,8 @@ package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.view.MotionEvent;
 
+import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZIDrawingAction;
+
 public interface CZIItemLongClickListener {
 
     /**

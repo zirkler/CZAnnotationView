@@ -6,6 +6,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
+import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZIDrawingAction;
+
 /**
  * Provided default implementation of GestureDetector.OnDoubleTapListener, to be overridden with custom behavior, if needed.
  */

@@ -1,5 +1,7 @@
 package com.zirkler.czannotationviewsample.AnnotationView;
 
+import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZIDrawingAction;
+
 import java.io.Serializable;
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.zirkler.czannotationviewsample.AnnotationView;
+package com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,6 +8,9 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+
+import com.zirkler.czannotationviewsample.AnnotationView.CZPaint;
+import com.zirkler.czannotationviewsample.AnnotationView.CZRelCords;
 
 import java.util.ArrayList;
 import java.util.List;
