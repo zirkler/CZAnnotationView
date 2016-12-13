@@ -119,6 +119,10 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
                     }
 
                     mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_SELECTED);
+
+                    // Move the selected element on top of the drawing stack.
+                    mPhotoView.getDrawnActions().remove(mSelectedItem);
+                    mPhotoView.getDrawnActions().add(mSelectedItem);
                 }
             }
 
@@ -216,6 +220,12 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             mSelectedItem = selectedItem;
             mPhotoView.getItemLongClickListener().onItemLongClicked(selectedItem, event);
             mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_SELECTED);
+
+            // Move the selected element on top of the drawing stack.
+            mPhotoView.getDrawnActions().remove(mSelectedItem);
+            mPhotoView.getDrawnActions().add(mSelectedItem);
+
+
             return true;
         }
         return false;
