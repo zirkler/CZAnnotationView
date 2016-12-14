@@ -79,10 +79,10 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             if (isOneFinger && mCurrentState == CZState.CURRENTLY_DRAWING) {
                 mPhotoView.getCurrentDrawingAction().touchMove(relCoords.getX(), relCoords.getY());
             } else if (isOneFinger && mCurrentState == CZState.ITEM_SELECTED) {
-                mPhotoView.getCurrentDrawingAction().touchMove(relCoords.getX(), relCoords.getY());
+                mSelectedItem.touchMove(relCoords.getX(), relCoords.getY());
             }
 
-            // User moved finger while there is more then one finger on the screen
+            // User moved finger while there is more then one finger on the screen, we cancel everything then.
             if (!isOneFinger) {
                 if (mCurrentState == CZState.CURRENTLY_DRAWING) {
                     mPhotoView.cancelCurrentDrawingAction();
