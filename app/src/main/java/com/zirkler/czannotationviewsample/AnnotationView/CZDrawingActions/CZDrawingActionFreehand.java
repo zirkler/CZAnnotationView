@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 
-import com.zirkler.czannotationviewsample.AnnotationView.CZLine;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPaint;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
 import com.zirkler.czannotationviewsample.AnnotationView.CZRelCords;
@@ -28,7 +27,6 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     private CZPaint mSelectionPaint;
     private List<CZRelCords> mCoords = new ArrayList<>();
     transient private Path mPath;
-    transient private List<CZLine> clickAreaLines = new ArrayList<>();
     private CZDrawingActionState mState;
 
     public CZDrawingActionFreehand(Context context, CZPaint paint) {
@@ -107,10 +105,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     @Override
     public void touchUp(float x, float y) {
         if (mState == CZDrawingActionState.ITEM_DRAWING) {
-            /*mPath.quadTo(mX,
-                     mY,
-                     (x + mX) / 2,
-                     (y + mY) / 2); */
+
             mCoords.add(new CZRelCords(x, y));
             //mPath.lineTo(x, y);
         }
@@ -134,7 +129,6 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
 
     @Override
     public boolean checkIfClicked(CZRelCords clickCords, RectF displayRect, Context context) {
-        clickAreaLines = new ArrayList<>();
         for (int i = 0; i < mCoords.size() - 1; i++) {
 
             // If distance from point to line is smaller then tolerance, it's a click on this line
@@ -168,27 +162,24 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
         mPath = new Path();
 
         if (mCoords != null && mCoords.size() > 0) {
-            mPath.moveTo(mCoords.get(0).getX() * displayRect.width() + displayRect.left,
-                        mCoords.get(0).getY() * displayRect.height() + displayRect.top);
 
+            // Move to start position
+            mPath.moveTo(mCoords.get(0).toAbsCordsAsPoint(displayRect).x,
+                         mCoords.get(0).toAbsCordsAsPoint(displayRect).y);
+
+            // Quad through all coordinates
             for (int i = 1; i < mCoords.size(); i++) {
-                mPath.lineTo(mCoords.get(i).getX() * displayRect.width() + displayRect.left,
-                        mCoords.get(i).getY() * displayRect.height() + displayRect.top);
+                float x1 = mCoords.get(i-1).toAbsCordsAsPoint(displayRect).x;
+                float y1 = mCoords.get(i-1).toAbsCordsAsPoint(displayRect).y;
+                float x2 = mCoords.get(i).toAbsCordsAsPoint(displayRect).x;
+                float y2 = mCoords.get(i).toAbsCordsAsPoint(displayRect).y;
+
+                mPath.quadTo(x1,
+                             y1,
+                             (x1 + x2) / 2,
+                             (y1 + y2) / 2);
             }
             canvas.drawPath(mPath, mPaint);
-
-            // draw click area polygons
-            if (clickAreaLines != null) {
-                for (int i = 0; i < clickAreaLines.size(); i++) {
-                    canvas.drawLine(
-                            clickAreaLines.get(i).getStart().x,
-                            clickAreaLines.get(i).getStart().y,
-                            clickAreaLines.get(i).getEnd().x,
-                            clickAreaLines.get(i).getEnd().y,
-                            mClickAreaPaint
-                    );
-                }
-            }
         }
     }
 
