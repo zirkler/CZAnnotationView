@@ -1,6 +1,7 @@
 package com.zirkler.czannotationviewsample.AnnotationView;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Build;
 import android.view.MotionEvent;
@@ -73,23 +74,31 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
         // User moved a finger on the screen
         if (event.getAction() == MotionEvent.ACTION_MOVE) {
 
-            // User moved his finger
-            if (isOneFinger && mCurrentState == CZState.CURRENTLY_DRAWING) {
-                mPhotoView.getCurrentDrawingAction().touchMove(relCoords.getX(), relCoords.getY());
-            } else if (isOneFinger && mCurrentState == CZState.ITEM_SELECTED) {
-                mSelectedItem.touchMove(relCoords.getX(), relCoords.getY());
-            }
+            // Check if the movement is bigger then the move threshold
+            PointF touchDownPoint = touchDownCords.toAbsCordsAsPoint(mPhotoView.getInitialDisplayRect());
+            PointF touchNow = relCoords.toAbsCordsAsPoint(mPhotoView.getInitialDisplayRect());
+            float distX = touchDownPoint.x - touchNow.x;
+            float distY = touchDownPoint.y - touchNow.y;
+            float totalDist = (float) Math.sqrt(distX*distX + distY*distY);
+            if (totalDist > 3) {
+                // User moved his finger
+                if (isOneFinger && mCurrentState == CZState.CURRENTLY_DRAWING) {
+                    mPhotoView.getCurrentDrawingAction().touchMove(relCoords.getX(), relCoords.getY());
+                } else if (isOneFinger && mCurrentState == CZState.ITEM_SELECTED) {
+                    mSelectedItem.touchMove(relCoords.getX(), relCoords.getY());
+                }
 
-            // User moved finger while there is more then one finger on the screen, we cancel everything then.
-            if (!isOneFinger) {
-                if (mCurrentState == CZState.CURRENTLY_DRAWING) {
-                    mPhotoView.cancelCurrentDrawingAction();
-                    mCurrentState = CZState.READY_TO_DRAW;
-                } else if (mCurrentState == CZState.ITEM_SELECTED) {
-                    mPhotoView.cancelCurrentDrawingAction();
-                    mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
-                    mSelectedItem = null;
-                    mCurrentState = CZState.READY_TO_DRAW;
+                // User moved finger while there is more then one finger on the screen, we cancel everything then.
+                if (!isOneFinger) {
+                    if (mCurrentState == CZState.CURRENTLY_DRAWING) {
+                        mPhotoView.cancelCurrentDrawingAction();
+                        mCurrentState = CZState.READY_TO_DRAW;
+                    } else if (mCurrentState == CZState.ITEM_SELECTED) {
+                        mPhotoView.cancelCurrentDrawingAction();
+                        mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+                        mSelectedItem = null;
+                        mCurrentState = CZState.READY_TO_DRAW;
+                    }
                 }
             }
         }

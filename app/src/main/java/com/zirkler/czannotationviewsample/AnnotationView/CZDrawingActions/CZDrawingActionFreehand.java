@@ -25,6 +25,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     private CZPaint mMovementPaint;
     private CZPaint mClickAreaPaint;
     private CZPaint mSelectionPaint;
+    private CZRelCords mStartPoint;
     private List<CZRelCords> mCoords = new ArrayList<>();
     transient private Path mPath;
     private CZDrawingActionState mState;
@@ -75,9 +76,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     @Override
     public void touchStart(float x, float y, RectF displayRect) {
         if (mState == CZDrawingActionState.ITEM_DRAWING) {
-            mX = x;
-            mY = y;
-            mCoords.add(new CZRelCords(x, y));
+            mStartPoint = new CZRelCords(x, y);
         }
     }
 
@@ -85,15 +84,18 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     public void touchMove(float x, float y) {
         // user is currently drawing this item
         if (mState == CZDrawingActionState.ITEM_DRAWING) {
-            mCoords.add(new CZRelCords(x, y));
-            mX = x;
-            mY = y;
+                mCoords.add(new CZRelCords(x, y));
+                mX = x;
+                mY = y;
         }
     }
 
     @Override
     public void touchMoveRelative(float dx, float dy) {
         if (mState == CZDrawingActionState.ITEM_SELECTED) {
+            mStartPoint.setX(mStartPoint.getX() + dx);
+            mStartPoint.setY(mStartPoint.getY() + dy);
+
             for (int i = 0; i < mCoords.size(); i++) {
                 CZRelCords currCords = mCoords.get(i);
                 currCords.setX(currCords.getX() + dx);
@@ -105,11 +107,10 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     @Override
     public void touchUp(float x, float y) {
         if (mState == CZDrawingActionState.ITEM_DRAWING) {
-
-            mCoords.add(new CZRelCords(x, y));
-            //mPath.lineTo(x, y);
+            if (mCoords.size() > 0) {
+                mCoords.add(new CZRelCords(x, y));
+            }
         }
-
     }
 
     @Override
@@ -164,8 +165,8 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
         if (mCoords != null && mCoords.size() > 0) {
 
             // Move to start position
-            mPath.moveTo(mCoords.get(0).toAbsCordsAsPoint(displayRect).x,
-                         mCoords.get(0).toAbsCordsAsPoint(displayRect).y);
+            mPath.moveTo(mStartPoint.toAbsCordsAsPoint(displayRect).x,
+                         mStartPoint.toAbsCordsAsPoint(displayRect).y);
 
             // Quad through all coordinates
             for (int i = 1; i < mCoords.size(); i++) {
