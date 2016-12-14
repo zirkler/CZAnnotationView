@@ -177,8 +177,10 @@ public class CZPhotoView extends PhotoView {
 
     public void setCurrentDrawingAction(CZIDrawingAction mCurrentDrawingAction) {
         // When specifying a new drawing action, we make sure the currently selected item get's unselected first.
-        attacher.getSelectedItem().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
-        attacher.setSelectedItem(null);
+        if (attacher.getSelectedItem() != null) {
+            attacher.getSelectedItem().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+            attacher.setSelectedItem(null);
+        }
         this.mCurrentDrawingAction = mCurrentDrawingAction;
     }
 
