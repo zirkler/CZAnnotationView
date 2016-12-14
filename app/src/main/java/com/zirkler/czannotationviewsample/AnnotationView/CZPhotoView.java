@@ -48,9 +48,10 @@ public class CZPhotoView extends PhotoView {
 
     transient private Context mContext;
 
-    // Click listeners.
+    // Listeners
     private CZItemLongClickListener mItemLongClickListener;
     private CZItemShortClickListener mItemShortClickListener;
+    private CZItemSelectionChangeListener mItemSelectionChangeListener;
 
     public CZPhotoView(Context context) {
         super(context);
@@ -398,7 +399,7 @@ public class CZPhotoView extends PhotoView {
      * Set the item long click listener
      * @param itemLongClickListener The to be set listener.
      */
-    public void setOnItemLongClickListener(CZItemLongClickListener itemLongClickListener) {
+    public void setItemLongClickListener(CZItemLongClickListener itemLongClickListener) {
         this.mItemLongClickListener = itemLongClickListener;
     }
 
@@ -413,7 +414,17 @@ public class CZPhotoView extends PhotoView {
      * Sets the item short click listener.
      * @param mItemShortClickListener The to be set listener.
      */
-    public void setOnItemShortClickListener(CZItemShortClickListener mItemShortClickListener) {
+    public void setItemShortClickListener(CZItemShortClickListener mItemShortClickListener) {
         this.mItemShortClickListener = mItemShortClickListener;
     }
+
+    public CZItemSelectionChangeListener getItemSelectionChangeListener() {
+        return mItemSelectionChangeListener;
+    }
+
+    public void setItemSelectionChangeListener(CZItemSelectionChangeListener mItemSelectionChangeListener) {
+        this.mItemSelectionChangeListener = mItemSelectionChangeListener;
+    }
+
+
 }

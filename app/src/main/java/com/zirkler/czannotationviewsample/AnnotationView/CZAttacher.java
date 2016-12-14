@@ -65,9 +65,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
                     mSelectedItem.touchStart(relCoords.getX(), relCoords.getY(), mPhotoView.getInitialDisplayRect());
                 } else {
                     // User touched somewhere else, not on the selected item, now deselect the item
-                    mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
-                    mSelectedItem = null;
-                    mCurrentState = CZState.READY_TO_DRAW;
+                    itemSelectionChanged(null, mSelectedItem, event);
                 }
             }
         }
@@ -103,26 +101,20 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             if (touchDownCords.getX() == relCoords.getX() && touchDownCords.getY() == relCoords.getY()) {
 
                 // Search for eventually clicked item
-                CZIDrawingAction selectedItem = searchForSelectedItem(touchDownCords);
-                if (selectedItem != null) {
-                    // reset eventually already selected item
+                CZIDrawingAction clickedItem = searchForSelectedItem(touchDownCords);
+                if (clickedItem == null) {
+                    // User did not perform a "short-click" event.
+                    // If there was a selection before, invoke the itemSelectionChanged event
                     if (mSelectedItem != null) {
-                        mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+                        itemSelectionChanged(null, mSelectedItem, event);
                     }
-
-                    mPhotoView.cancelCurrentDrawingAction();
-                    mCurrentState = CZState.ITEM_SELECTED;
-                    mSelectedItem = selectedItem;
+                } else {
+                    // user performed "short-click" event, invoke the itemSelectionChanged event
+                    itemSelectionChanged(clickedItem, mSelectedItem, event);
 
                     if (mPhotoView.getItemShortClickListener() != null) {
-                        mPhotoView.getItemShortClickListener().onItemShortClicked(selectedItem, event);
+                        mPhotoView.getItemShortClickListener().onItemShortClicked(clickedItem, event);
                     }
-
-                    mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_SELECTED);
-
-                    // Move the selected element on top of the drawing stack.
-                    mPhotoView.getDrawnActions().remove(mSelectedItem);
-                    mPhotoView.getDrawnActions().add(mSelectedItem);
                 }
             }
 
@@ -215,19 +207,12 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
         CZIDrawingAction selectedItem = searchForSelectedItem(cords);
         if (selectedItem != null) {
-            mPhotoView.cancelCurrentDrawingAction();
-            mCurrentState = CZState.ITEM_SELECTED;
-            mSelectedItem = selectedItem;
+            // User long-clicked on an item.
+            itemSelectionChanged(selectedItem, mSelectedItem, event);
             mPhotoView.getItemLongClickListener().onItemLongClicked(selectedItem, event);
-            mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_SELECTED);
-
-            // Move the selected element on top of the drawing stack.
-            mPhotoView.getDrawnActions().remove(mSelectedItem);
-            mPhotoView.getDrawnActions().add(mSelectedItem);
-
-
             return true;
         }
+
         return false;
     }
 
@@ -294,6 +279,46 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
     public void setmSelectedItem(CZIDrawingAction mSelectedItem) {
         this.mSelectedItem = mSelectedItem;
+    }
+
+    public void itemSelectionChanged(CZIDrawingAction newSelectedItem, CZIDrawingAction prevSelectedItem, MotionEvent event) {
+
+        // If there was a item previously select, deselect it properly
+        if (prevSelectedItem != null) {
+            prevSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+        }
+
+        // Cancel an eventually started drawing action
+        mPhotoView.cancelCurrentDrawingAction();
+
+        if (newSelectedItem == null) {
+            // User selected nothing
+            mCurrentState = CZState.READY_TO_DRAW;
+            mSelectedItem = null;
+
+            // If something was previously select, no unselect it.
+            if (prevSelectedItem != null) {
+                prevSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+            }
+
+        } else {
+            // If the user selected something new, change state
+            mCurrentState = CZState.ITEM_SELECTED;
+            mSelectedItem = newSelectedItem;
+            mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_SELECTED);
+
+            // Move the selected element on top of the drawing stack.
+            mPhotoView.getDrawnActions().remove(mSelectedItem);
+            mPhotoView.getDrawnActions().add(mSelectedItem);
+        }
+
+        // Forward the event to the user
+        if (mPhotoView.getItemSelectionChangeListener() != null) {
+            mPhotoView.getItemSelectionChangeListener().onItemSelectionChanged(
+                    newSelectedItem,
+                    prevSelectedItem,
+                    event);
+        }
     }
 
     public enum CZState {

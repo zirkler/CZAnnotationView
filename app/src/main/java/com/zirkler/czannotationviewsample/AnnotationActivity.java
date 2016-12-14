@@ -30,6 +30,7 @@ import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZDraw
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZDrawingActionText;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZIDrawingAction;
 import com.zirkler.czannotationviewsample.AnnotationView.CZItemLongClickListener;
+import com.zirkler.czannotationviewsample.AnnotationView.CZItemSelectionChangeListener;
 import com.zirkler.czannotationviewsample.AnnotationView.CZItemShortClickListener;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
 import com.zirkler.czannotationviewsample.AnnotationView.MagnifierView;
@@ -44,7 +45,7 @@ import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class AnnotationActivity extends AppCompatActivity implements CZItemShortClickListener, CZItemLongClickListener{
+public class AnnotationActivity extends AppCompatActivity implements CZItemShortClickListener, CZItemLongClickListener, CZItemSelectionChangeListener {
 
     public static final String DRAWN_ACTIONS = "drawn_actions";
     public static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 101;
@@ -74,9 +75,10 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
         // Set default drawing tool
         mPhotoView.setCurrentDrawingAction(new CZDrawingActionFreehand(AnnotationActivity.this, null));
 
-        // Set item click listeners
-        mPhotoView.setOnItemLongClickListener(this);
-        mPhotoView.setOnItemShortClickListener(this);
+        // Set event listeners
+        mPhotoView.setItemLongClickListener(this);
+        mPhotoView.setItemShortClickListener(this);
+        mPhotoView.setItemSelectionChangeListener(this);
 
         // Receive the drawing db object and check if a saved file of this drawing already exists
         Drawing drawing = (Drawing) getIntent().getSerializableExtra(MainActivity.DRAWING_KEY);
@@ -246,14 +248,11 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
 
     @Override
     public void onItemLongClicked(CZIDrawingAction item, MotionEvent event) {
-        showDeleteIcon();
     }
 
     @Override
     public void onItemShortClicked(CZIDrawingAction item, MotionEvent event) {
-        showDeleteIcon();
-
-        // If user clicks a text view, show him dialog to edit the text
+        // If user clicks a text view, show him dialog to edit the text.
         if (item instanceof CZDrawingActionText) {
             final CZDrawingActionText textItem = (CZDrawingActionText) item;
             new MaterialDialog.Builder(AnnotationActivity.this)
@@ -270,7 +269,7 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
     }
 
     private void showDeleteIcon() {
-        mBttDelete.setVisibility(View.VISIBLE);
+
     }
 
     @OnClick(R.id.bttDeleteItem)
@@ -281,5 +280,17 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
 
         // Hide delete button
         mBttDelete.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onItemSelectionChanged(CZIDrawingAction newSelectedItem, CZIDrawingAction prevSelectedItem, MotionEvent event) {
+
+        if (newSelectedItem == null) {
+            // Hide the delete button if there is nothing selected to delete.
+            mBttDelete.setVisibility(View.GONE);
+        } else {
+            mBttDelete.setVisibility(View.VISIBLE);
+            // Show the delete button if user has something selected
+        }
     }
 }
