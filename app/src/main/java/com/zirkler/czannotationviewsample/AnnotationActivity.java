@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -23,8 +22,6 @@ import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 import com.zirkler.czannotationviewsample.AnnotationView.CZAttacher;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZDrawingActionEraser;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZDrawingActionFreehand;
@@ -108,26 +105,17 @@ public class AnnotationActivity extends AppCompatActivity {
         mFileName = drawing.getDrawingTitle();
         File file = new File(getFilesDir() + "/" + mFileName);
 
-        if (file.exists()) {
-            // load the saved file
-            try {
+        try {
+            // If there is a file for this drawing, load it
+            if (file.exists()) {
                 mPhotoView.loadFromFile(this, mAttacher, mFileName);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } else {
+                // Otherwise set the default background
+                Bitmap defaultBackground = BitmapFactory.decodeResource(getResources(), R.drawable.background);
+                mPhotoView.setBackgroundPicture(defaultBackground, mAttacher, this, mFileName);
             }
-        } else {
-            // load the default background into the view
-            Picasso.with(this).load(R.drawable.background).into(mPhotoView, new Callback() {
-                @Override
-                public void onSuccess() {
-                    mAttacher.update();
-                }
-
-                @Override
-                public void onError() {
-                    Log.e(AnnotationActivity.class.getSimpleName(), "Picasso Error occurred.");
-                }
-            });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         // Setup magnifier view, size is always 1/4 of the views width
@@ -178,13 +166,13 @@ public class AnnotationActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             finish();
         } else if (item.getItemId() == R.id.action_freehand_drawing) {
-            mPhotoView.setCurrentDrawingAction(new CZDrawingActionFreehand(this, null));
+            changeTool(new CZDrawingActionFreehand(this, null));
         } else if (item.getItemId() == R.id.action_eraser) {
-            mPhotoView.setCurrentDrawingAction(new CZDrawingActionEraser(this, null));
+            changeTool(new CZDrawingActionEraser(this, null));
         } else if (item.getItemId() == R.id.action_pick_background) {
             EasyImage.openChooserWithDocuments(this, "Choose Background Image", 0);
         } else if (item.getItemId() == R.id.action_line) {
-            mPhotoView.setCurrentDrawingAction(new CZDrawingActionLine(this, null));
+            changeTool(new CZDrawingActionLine(this, null));
         } else if (item.getItemId() == R.id.action_text) {
             // Ask user for text
             new MaterialDialog.Builder(this)
@@ -194,7 +182,7 @@ public class AnnotationActivity extends AppCompatActivity {
                     .input("Text", "My Annotation Text", new MaterialDialog.InputCallback() {
                         @Override
                         public void onInput(MaterialDialog dialog, CharSequence input) {
-                            mPhotoView.setCurrentDrawingAction(new CZDrawingActionText(AnnotationActivity.this, null, input.toString()));
+                            changeTool(new CZDrawingActionText(AnnotationActivity.this, null, input.toString()));
                             mPhotoView.getCurrentDrawingAction().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
                             mPhotoView.userFinishedDrawing();
                             mAttacher.setmCurrentState(CZAttacher.CZState.READY_TO_DRAW);
@@ -212,6 +200,14 @@ public class AnnotationActivity extends AppCompatActivity {
             startActivity(intent);
         }
         return true;
+    }
+
+    public void changeTool(CZIDrawingAction newAction) {
+        if (mAttacher.getSelectedItem() != null) {
+            mAttacher.getSelectedItem().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+            mAttacher.setSelectedItem(null);
+        }
+        mPhotoView.setCurrentDrawingAction(newAction);
     }
 
     @Override
@@ -247,6 +243,10 @@ public class AnnotationActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
+        if (mAttacher.getSelectedItem() != null) {
+            mAttacher.getSelectedItem().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+            mAttacher.setSelectedItem(null);
+        }
         try {
             mPhotoView.saveToFile(this, mFileName);
         } catch (IOException e) {

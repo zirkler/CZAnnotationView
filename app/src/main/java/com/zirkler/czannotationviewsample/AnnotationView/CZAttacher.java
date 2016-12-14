@@ -60,11 +60,11 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             // User has an item selected and now lays a finger down
             if (isOneFinger && mCurrentState == CZState.ITEM_SELECTED) {
                 // Check if user touched on the selected item (ie. to perform moving or editing)
-                if (mSelectedItem.checkIfClicked(relCoords, mPhotoView.getInitialDisplayRect(), mContext)) {
+                if (mSelectedItem != null && mSelectedItem.checkIfClicked(relCoords, mPhotoView.getInitialDisplayRect(), mContext)) {
                     // keep the item selected ...
                     mSelectedItem.touchStart(relCoords.getX(), relCoords.getY(), mPhotoView.getInitialDisplayRect());
                 } else {
-                    // User touched somewhere else, not on the selected item, now unselect the item
+                    // User touched somewhere else, not on the selected item, now deselect the item
                     mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
                     mSelectedItem = null;
                     mCurrentState = CZState.READY_TO_DRAW;

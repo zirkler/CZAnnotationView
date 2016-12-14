@@ -99,6 +99,7 @@ public class CZPhotoView extends PhotoView {
                 mCacheCanvas = new Canvas();
                 mCacheCanvas.setBitmap(mForeground);
                 mInitialDisplayRect = getDisplayRect();
+                invalidate();
             }
         });
     }
@@ -110,6 +111,9 @@ public class CZPhotoView extends PhotoView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
+        // We can't do anything until the displayRect is available
+        if (mInitialDisplayRect == null) return;
 
         // clear the cache canvas
         mCacheCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
@@ -176,11 +180,6 @@ public class CZPhotoView extends PhotoView {
     }
 
     public void setCurrentDrawingAction(CZIDrawingAction mCurrentDrawingAction) {
-        // When specifying a new drawing action, we make sure the currently selected item get's unselected first.
-        if (attacher.getSelectedItem() != null) {
-            attacher.getSelectedItem().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
-            attacher.setSelectedItem(null);
-        }
         this.mCurrentDrawingAction = mCurrentDrawingAction;
     }
 
