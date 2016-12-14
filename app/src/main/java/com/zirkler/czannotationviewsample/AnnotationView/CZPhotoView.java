@@ -43,9 +43,8 @@ public class CZPhotoView extends PhotoView {
     private List<CZIDrawingAction> mRedoActions = new ArrayList<>();
     private Canvas mCacheCanvas;
     private Bitmap mForeground;
-    private Paint mBitmapPaint;
     private RectF mInitialDisplayRect;
-
+    private Paint mDrawBitmapPaint;
     transient private Context mContext;
 
     // Listeners
@@ -84,8 +83,10 @@ public class CZPhotoView extends PhotoView {
 
     private void setup(Context context) {
         mContext = context;
-        mBitmapPaint = new Paint();
-        mBitmapPaint.setAntiAlias(true);
+
+        mDrawBitmapPaint = new Paint();
+        mDrawBitmapPaint.setAntiAlias(true);
+        mDrawBitmapPaint.setFilterBitmap(true);
 
         // We wait until the layouting has finished, and then receive width and height of our view
         final ViewTreeObserver viewTreeObserver = getViewTreeObserver();
@@ -132,10 +133,7 @@ public class CZPhotoView extends PhotoView {
             mCurrentDrawingAction.draw(mCacheCanvas, mInitialDisplayRect);
         }
 
-        Paint drawBitmapPaint = new Paint();
-        drawBitmapPaint.setAntiAlias(true);
-        drawBitmapPaint.setFilterBitmap(true);
-        canvas.drawBitmap(mForeground, 0, 0, drawBitmapPaint);
+        canvas.drawBitmap(mForeground, 0, 0, mDrawBitmapPaint);
 
         mMagnifierView.invalidate();
     }
