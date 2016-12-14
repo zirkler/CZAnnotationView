@@ -30,11 +30,17 @@ import java.util.List;
 
 public class CZPhotoView extends PhotoView {
 
+
     private static final String INSTANCE_STATE = "cz_annotationview_instance_state";
     private static final String DRAWN_ACTIONS = "drawn_actions";
     private static final String SUPER_STATE = "super_state";
     private static final String BACKGROUND_TEMP_FILE_PATH = "czannotation_bg_tmp";
     private static final String BACKGROUND_TEMP_FILE_PATH_KEY = "bg_temp_";
+
+    public float mStoredScaleFactor;
+    public float mStoredScaleFocusX;
+    public float mStoredScaleFocusY;
+
     transient public CZAttacher attacher;
     Matrix mConcatMatrix = new Matrix();
     transient private MagnifierView mMagnifierView;
@@ -45,7 +51,7 @@ public class CZPhotoView extends PhotoView {
     private Bitmap mForeground;
     private RectF mInitialDisplayRect;
     private Paint mDrawBitmapPaint;
-    transient private Context mContext;
+    private Context mContext;
 
     // Listeners
     private CZItemLongClickListener mItemLongClickListener;
@@ -88,22 +94,32 @@ public class CZPhotoView extends PhotoView {
         mDrawBitmapPaint.setAntiAlias(true);
         mDrawBitmapPaint.setFilterBitmap(true);
 
-        // We wait until the layouting has finished, and then receive width and height of our view
         final ViewTreeObserver viewTreeObserver = getViewTreeObserver();
         viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                mForeground = Bitmap.createBitmap(
-                        getWidth(),
-                        getHeight(),
-                        Bitmap.Config.ARGB_8888);
-
-                mCacheCanvas = new Canvas();
-                mCacheCanvas.setBitmap(mForeground);
-                mInitialDisplayRect = getDisplayRect();
-                invalidate();
+                Log.i(CZPhotoView.class.getSimpleName(),
+                        "You did something which caused the onGlobalLayout to be called, " +
+                         "this is probably gonna break your zooming. Avoid action that change the global layout, " +
+                         "like adding views to the parent view group.");
             }
         });
+
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        Log.i("asd", String.format("onSizeChanged(int w %d, int h %d, int oldw %d, int oldh %d)", w, h, oldw, oldh));
+        mForeground = Bitmap.createBitmap(
+                getWidth(),
+                getHeight(),
+                Bitmap.Config.ARGB_8888);
+
+        mCacheCanvas = new Canvas();
+        mCacheCanvas.setBitmap(mForeground);
+        mInitialDisplayRect = getDisplayRect();
+        invalidate();
     }
 
     /**
@@ -143,8 +159,7 @@ public class CZPhotoView extends PhotoView {
         postDelayed(new Runnable() {
             @Override
             public void run() {
-                invalidate();
-                attacher.update();
+
                 attacher.onScale(0, 0, 0); // just called to force rescaling of drawings
             }
         }, 1);
@@ -423,6 +438,5 @@ public class CZPhotoView extends PhotoView {
     public void setItemSelectionChangeListener(CZItemSelectionChangeListener mItemSelectionChangeListener) {
         this.mItemSelectionChangeListener = mItemSelectionChangeListener;
     }
-
 
 }
