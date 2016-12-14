@@ -240,7 +240,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
      */
     private CZIDrawingAction searchForSelectedItem(CZRelCords clickCords) {
         CZIDrawingAction selectedItem = null;
-        for (int i = mPhotoView.getDrawnActions().size() - 1; i >= 0; i--) {
+        for (int i = 0; i < mPhotoView.getDrawnActions().size(); i++) {
             CZIDrawingAction currAction = mPhotoView.getDrawnActions().get(i);
             if (currAction.checkIfClicked(clickCords, mPhotoView.getInitialDisplayRect(), mContext)) {
                 selectedItem = currAction;
