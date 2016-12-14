@@ -9,8 +9,7 @@ import android.graphics.RectF;
 
 import com.zirkler.czannotationviewsample.AnnotationView.CZLine;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPaint;
-import com.zirkler.czannotationviewsample.AnnotationView.CZPoint;
-import com.zirkler.czannotationviewsample.AnnotationView.CZPolygon;
+import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
 import com.zirkler.czannotationviewsample.AnnotationView.CZRelCords;
 
 import java.io.Serializable;
@@ -134,49 +133,19 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     }
 
     @Override
-    public boolean checkIfClicked(CZRelCords cords, RectF displayRect, Context context) {
-        float cordX = (cords.getX() * displayRect.width() + displayRect.left);
-        float cordY = (cords.getY() * displayRect.height() + displayRect.top);
-
+    public boolean checkIfClicked(CZRelCords clickCords, RectF displayRect, Context context) {
         clickAreaLines = new ArrayList<>();
         for (int i = 0; i < mCoords.size() - 1; i++) {
-            float topXCoordinate;
-            float topYCoordinate;
-            float bottomXCoordinate;
-            float bottomYCoordinate;
 
-            // find top and bottom point
-            CZRelCords topPoint;
-            CZRelCords bottomPoint;
+            // If distance from point to line is smaller then tolerance, it's a click on this line
+            double absoluteDistance = CZPhotoView.pointToSegmentDistance(
+                    mCoords.get(i).toAbsCordsAsPoint(displayRect),
+                    mCoords.get(i + 1).toAbsCordsAsPoint(displayRect),
+                    clickCords.toAbsCordsAsPoint(displayRect));
 
-            if (mCoords.get(i).getY() < mCoords.get(i+1).getY()) {
-                topPoint = mCoords.get(i);
-                bottomPoint = mCoords.get(i+1);
-            } else {
-                topPoint = mCoords.get(i+1);
-                bottomPoint = mCoords.get(i);
-            }
+            double deviceIndependentDistance = absoluteDistance / context.getResources().getDisplayMetrics().density;
 
-            // Translate image relative points back to actual pixel coordinates
-            topXCoordinate = topPoint.getX()       * displayRect.width()  + displayRect.left;
-            topYCoordinate = topPoint.getY()       * displayRect.height() + displayRect.top;
-            bottomXCoordinate = bottomPoint.getX() * displayRect.width()  + displayRect.left;
-            bottomYCoordinate = bottomPoint.getY() * displayRect.height() + displayRect.top;
-
-            // build polygon around this two points
-            CZPolygon polygon = CZPolygon.Builder()
-                    .addVertex(new CZPoint(topXCoordinate    - CLICK_AREA_TOLERANCE, topYCoordinate    - CLICK_AREA_TOLERANCE))
-                    .addVertex(new CZPoint(topXCoordinate    + CLICK_AREA_TOLERANCE, topYCoordinate    - CLICK_AREA_TOLERANCE))
-                    .addVertex(new CZPoint(bottomXCoordinate + CLICK_AREA_TOLERANCE, bottomYCoordinate + CLICK_AREA_TOLERANCE))
-                    .addVertex(new CZPoint(bottomXCoordinate - CLICK_AREA_TOLERANCE, bottomYCoordinate + CLICK_AREA_TOLERANCE))
-                    .close()
-                    .build();
-
-            // Uncomment below line to draw the click area polygons, awesome when debugging.
-            // clickAreaLines.addAll(polygon.getSides());
-
-            // Perform the actual check if users clicked inside the clickarea
-            if (polygon.contains(new CZPoint(cordX, cordY))) {
+            if (deviceIndependentDistance <= CLICK_AREA_TOLERANCE) {
                 return true;
             }
         }
