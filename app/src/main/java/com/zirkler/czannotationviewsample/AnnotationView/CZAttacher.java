@@ -231,32 +231,6 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
         return false;
     }
 
-
-
-    public CZPhotoView getPhotoView() {
-        return mPhotoView;
-    }
-
-    public void setPhotoView(CZPhotoView mPhotoView) {
-        this.mPhotoView = mPhotoView;
-    }
-
-    public CZState getmCurrentState() {
-        return mCurrentState;
-    }
-
-    public void setmCurrentState(CZState mCurrentState) {
-        this.mCurrentState = mCurrentState;
-    }
-
-    public CZIDrawingAction getSelectedItem() {
-        return mSelectedItem;
-    }
-
-    public void setSelectedItem(CZIDrawingAction mSelectedItem) {
-        this.mSelectedItem = mSelectedItem;
-    }
-
     /**
      * Here we map the pixel values of coordinates to a image relative representation.
      * pX/Y contains values between 0 and 1, if the user touches inside the image.
@@ -288,6 +262,38 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             }
         }
         return selectedItem;
+    }
+
+    public CZPhotoView getPhotoView() {
+        return mPhotoView;
+    }
+
+    public void setPhotoView(CZPhotoView mPhotoView) {
+        this.mPhotoView = mPhotoView;
+    }
+
+    public CZState getmCurrentState() {
+        return mCurrentState;
+    }
+
+    public void setmCurrentState(CZState mCurrentState) {
+        this.mCurrentState = mCurrentState;
+    }
+
+    public CZIDrawingAction getSelectedItem() {
+        return mSelectedItem;
+    }
+
+    public void setSelectedItem(CZIDrawingAction mSelectedItem) {
+        this.mSelectedItem = mSelectedItem;
+    }
+
+    public CZIDrawingAction getmSelectedItem() {
+        return mSelectedItem;
+    }
+
+    public void setmSelectedItem(CZIDrawingAction mSelectedItem) {
+        this.mSelectedItem = mSelectedItem;
     }
 
     public enum CZState {
