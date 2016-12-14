@@ -13,9 +13,12 @@ import java.util.List;
 
 public class CZDrawingActionText implements CZIDrawingAction {
 
+    public static int PADDING = 20;
     private CZRelCords mCords;
     private CZPaint mTextPaint;
-    private CZPaint mPaint;
+    private CZPaint mNormalPaint;
+    private CZPaint mSelectionPaint;
+    private CZPaint mRectanglePaint;
     private CZDrawingActionState mState;
     transient private RectF mRect;
     private String mText = "NO TEXT PROVIDED";
@@ -28,18 +31,27 @@ public class CZDrawingActionText implements CZIDrawingAction {
         if (textPaint == null) {
             mTextPaint = new CZPaint();
             mTextPaint.setAntiAlias(true);
-            mTextPaint.setColor(Color.BLACK);
+            mTextPaint.setColor(Color.WHITE);
             mTextPaint.setStyle(Paint.Style.FILL_AND_STROKE);
             mTextPaint.setTextSize(40);
 
-            mPaint = new CZPaint();
-            mPaint.setAntiAlias(true);
-            mPaint.setColor(Color.DKGRAY);
-            mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-            mPaint.setStrokeJoin(Paint.Join.ROUND);
-            mPaint.setStrokeCap(Paint.Cap.ROUND);
-            mPaint.setStrokeWidth(10);
+            mNormalPaint = new CZPaint();
+            mNormalPaint.setAntiAlias(true);
+            mNormalPaint.setColor(Color.parseColor("#B0000000")); // 20% opacity
+            mNormalPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            mNormalPaint.setStrokeJoin(Paint.Join.ROUND);
+            mNormalPaint.setStrokeCap(Paint.Cap.ROUND);
+            mNormalPaint.setStrokeWidth(10);
 
+            mSelectionPaint = new CZPaint();
+            mSelectionPaint.setAntiAlias(true);
+            mSelectionPaint.setColor(Color.parseColor("#B0FF0000")); // 20% opacity
+            mSelectionPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            mSelectionPaint.setStrokeJoin(Paint.Join.ROUND);
+            mSelectionPaint.setStrokeCap(Paint.Cap.ROUND);
+            mSelectionPaint.setStrokeWidth(10);
+
+            mRectanglePaint = mNormalPaint;
         } else {
             mTextPaint = textPaint;
         }
@@ -92,12 +104,13 @@ public class CZDrawingActionText implements CZIDrawingAction {
 
         // draw a rectangle around the text
         mRect = new RectF(
-                    textPosX,
-                    textPosY - singleLineTextHeight + mTextPaint.descent(),
-                    textPosX + textWidth,
-                    textPosY + totalTextHeight + mTextPaint.ascent());
+                    textPosX - PADDING,
+                    textPosY - singleLineTextHeight + mTextPaint.descent() - PADDING,
+                    textPosX + textWidth + PADDING,
+                    textPosY + totalTextHeight + mTextPaint.ascent() + PADDING);
 
-        canvas.drawRect(mRect, mPaint);
+
+        canvas.drawRoundRect(mRect, 5, 5, mRectanglePaint);
 
         for (int i = 0; i < lines.length; i++) {
             canvas.drawText(lines[i], textPosX , textPosY + singleLineTextHeight * i, mTextPaint);
@@ -143,9 +156,9 @@ public class CZDrawingActionText implements CZIDrawingAction {
     @Override
     public void setActionState(CZDrawingActionState state) {
         if (state == CZDrawingActionState.ITEM_DRAWN) {
-            mPaint.setColor(Color.DKGRAY);
+            mRectanglePaint = mNormalPaint;
         } else if (state == CZDrawingActionState.ITEM_SELECTED) {
-            mPaint.setColor(Color.GREEN);
+            mRectanglePaint = mSelectionPaint;
         }
         mState = state;
     }
