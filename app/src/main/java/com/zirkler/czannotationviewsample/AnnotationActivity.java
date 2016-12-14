@@ -190,6 +190,7 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
             mAttacher.getSelectedItem().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
             mAttacher.setSelectedItem(null);
         }
+
         mPhotoView.setCurrentDrawingAction(newAction);
         mAttacher.setCurrentState(CZAttacher.CZState.READY_TO_DRAW);
     }

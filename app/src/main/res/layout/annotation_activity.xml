@@ -34,7 +34,8 @@
             android:layout_width="300dp"
             android:layout_height="300dp"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true" />
+            android:layout_alignParentTop="true"
+            android:visibility="invisible" />
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/bottomToolbar"

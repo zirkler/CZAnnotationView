@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZDrawingActionLine;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZIDrawingAction;
 
 
@@ -39,13 +40,19 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
         // handleMagnifierPosition(event);
 
 
-
         // Send absolute touch coordinates to the magnifier view
         mPhotoView.getMagnifierView().setFocusX(event.getX());
         mPhotoView.getMagnifierView().setFocusY(event.getY());
 
         // User lays a finger on the screen
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+            // Handle magnifier visibility
+            if (mPhotoView.getCurrentDrawingAction() != null &&
+                mPhotoView.getCurrentDrawingAction() instanceof CZDrawingActionLine &&
+                mPhotoView.getMagnifierView() != null) {
+                mPhotoView.getMagnifierView().setVisibility(View.VISIBLE);
+            }
 
             // Store touch down cords, on touch up we check if user performed any movements.
             touchDownCords = relCoords;
@@ -75,6 +82,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
         if (event.getAction() == MotionEvent.ACTION_MOVE) {
 
             // Check if the movement is bigger then the move threshold
+            // TODO: move this into seperate method!
             PointF touchDownPoint = touchDownCords.toAbsCordsAsPoint(mPhotoView.getInitialDisplayRect());
             PointF touchNow = relCoords.toAbsCordsAsPoint(mPhotoView.getInitialDisplayRect());
             float distX = touchDownPoint.x - touchNow.x;
@@ -105,6 +113,11 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
         // User lifted finger up
         if (event.getAction() == MotionEvent.ACTION_UP) {
+
+            // Hide magnifier
+            if (mPhotoView.getMagnifierView() != null) {
+                mPhotoView.getMagnifierView().setVisibility(View.INVISIBLE);
+            }
 
             // Check if user "short-clicked" a drawn item
             if (touchDownCords.getX() == relCoords.getX() && touchDownCords.getY() == relCoords.getY()) {
