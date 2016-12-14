@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -36,6 +38,7 @@ import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
 import com.zirkler.czannotationviewsample.AnnotationView.MagnifierView;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import butterknife.BindView;
@@ -196,9 +199,33 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
         EasyImage.handleActivityResult(requestCode, resultCode, data, this, new DefaultCallback() {
             @Override
             public void onImagePicked(File imageFile, EasyImage.ImageSource source, int type) {
-                Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath());
                 try {
-                    mPhotoView.setBackgroundPicture(bitmap, mAttacher, AnnotationActivity.this, mFileName);
+                    // Automatically correctly rotate the taken image
+                    ExifInterface exif = new ExifInterface(imageFile.getPath());
+                    int orientation = exif.getAttributeInt(
+                            ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_NORMAL);
+
+                    int angle = 0;
+                    if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                        angle = 90;
+                    } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+                        angle = 180;
+                    } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                        angle = 270;
+                    }
+
+                    Matrix mat = new Matrix();
+                    mat.postRotate(angle);
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inSampleSize = 2;
+
+                    // Load the original captured image as bitmap
+                    Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(imageFile), null, options);
+
+                    // Actually rotate the bitmap
+                    Bitmap rotatetBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mat, true);
+                    mPhotoView.setBackgroundPicture(rotatetBitmap, mAttacher, AnnotationActivity.this, mFileName);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
