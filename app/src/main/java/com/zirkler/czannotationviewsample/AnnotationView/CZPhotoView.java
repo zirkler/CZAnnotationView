@@ -148,7 +148,6 @@ public class CZPhotoView extends PhotoView {
         postDelayed(new Runnable() {
             @Override
             public void run() {
-
                 attacher.onScale(0, 0, 0); // just called to force rescaling of drawings
             }
         }, 1);
@@ -308,6 +307,7 @@ public class CZPhotoView extends PhotoView {
         setImageBitmap(backgroundBitmap);
         invalidate();
         attacher.update();
+        attacher.onScale(0, 0, 0); // just called to force rescaling of drawings
     }
 
     /**
