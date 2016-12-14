@@ -77,7 +77,7 @@ public class DefaultOnDoubleTapListener implements GestureDetector.OnDoubleTapLi
             return false;
 
         Log.i("onDoubleTap before ", mCZAttacher.getmCurrentState().toString());
-        mCZAttacher.setmCurrentState(CZAttacher.CZState.DOUBLE_TAP_ZOOMING);
+        mCZAttacher.setCurrentState(CZAttacher.CZState.DOUBLE_TAP_ZOOMING);
         Log.i("asd", mCZAttacher.getmCurrentState().toString());
         if (mCZAttacher.getSelectedItem() != null) {
             mCZAttacher.getSelectedItem().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
@@ -101,7 +101,7 @@ public class DefaultOnDoubleTapListener implements GestureDetector.OnDoubleTapLi
         }
 
         Log.i("asd finsihed double tap", mCZAttacher.getmCurrentState().toString());
-        mCZAttacher.setmCurrentState(CZAttacher.CZState.READY_TO_DRAW);
+        mCZAttacher.setCurrentState(CZAttacher.CZState.READY_TO_DRAW);
         Log.i("asd", mCZAttacher.getmCurrentState().toString());
         return true;
     }

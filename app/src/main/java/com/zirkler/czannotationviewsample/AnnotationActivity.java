@@ -18,8 +18,9 @@ import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.Toast;
+import android.widget.Button;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.zirkler.czannotationviewsample.AnnotationView.CZAttacher;
@@ -43,7 +44,7 @@ import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class AnnotationActivity extends AppCompatActivity {
+public class AnnotationActivity extends AppCompatActivity implements CZItemShortClickListener, CZItemLongClickListener{
 
     public static final String DRAWN_ACTIONS = "drawn_actions";
     public static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 101;
@@ -53,6 +54,7 @@ public class AnnotationActivity extends AppCompatActivity {
     }
 
     @BindView(R.id.toolbar) Toolbar mToolbar;
+    @BindView(R.id.bttDeleteItem) Button mBttDelete;
     private CZAttacher mAttacher;
     private CZPhotoView mPhotoView;
     private String mFileName;
@@ -72,33 +74,9 @@ public class AnnotationActivity extends AppCompatActivity {
         // Set default drawing tool
         mPhotoView.setCurrentDrawingAction(new CZDrawingActionFreehand(AnnotationActivity.this, null));
 
-        // Set onItemLongClickListener
-        mPhotoView.setOnItemLongClickListener(new CZItemLongClickListener() {
-            @Override
-            public void onItemLongClicked(CZIDrawingAction item, MotionEvent e) {
-                Toast.makeText(AnnotationActivity.this, "Item got long-clicked", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Set onItemShortClickListener
-        mPhotoView.setOnItemShortClickListener(new CZItemShortClickListener() {
-            @Override
-            public void onItemShortClicked(final CZIDrawingAction item, MotionEvent event) {
-                if (item instanceof CZDrawingActionText) {
-                    final CZDrawingActionText textItem = (CZDrawingActionText) item;
-                    new MaterialDialog.Builder(AnnotationActivity.this)
-                            .title("Change text")
-                            .content("Text Please.")
-                            .inputType(InputType.TYPE_CLASS_TEXT)
-                            .input("Text", textItem.getText(), new MaterialDialog.InputCallback() {
-                                @Override
-                                public void onInput(MaterialDialog dialog, CharSequence input) {
-                                    textItem.setText(input.toString());
-                                }
-                            }).show();
-                }
-            }
-        });
+        // Set item click listeners
+        mPhotoView.setOnItemLongClickListener(this);
+        mPhotoView.setOnItemShortClickListener(this);
 
         // Receive the drawing db object and check if a saved file of this drawing already exists
         Drawing drawing = (Drawing) getIntent().getSerializableExtra(MainActivity.DRAWING_KEY);
@@ -185,7 +163,7 @@ public class AnnotationActivity extends AppCompatActivity {
                             changeTool(new CZDrawingActionText(AnnotationActivity.this, null, input.toString()));
                             mPhotoView.getCurrentDrawingAction().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
                             mPhotoView.userFinishedDrawing();
-                            mAttacher.setmCurrentState(CZAttacher.CZState.READY_TO_DRAW);
+                            mAttacher.setCurrentState(CZAttacher.CZState.READY_TO_DRAW);
                         }
                     }).show();
 
@@ -208,6 +186,7 @@ public class AnnotationActivity extends AppCompatActivity {
             mAttacher.setSelectedItem(null);
         }
         mPhotoView.setCurrentDrawingAction(newAction);
+        mAttacher.setCurrentState(CZAttacher.CZState.READY_TO_DRAW);
     }
 
     @Override
@@ -263,5 +242,44 @@ public class AnnotationActivity extends AppCompatActivity {
         Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_material, null);
         upArrow.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
+    }
+
+    @Override
+    public void onItemLongClicked(CZIDrawingAction item, MotionEvent event) {
+        showDeleteIcon();
+    }
+
+    @Override
+    public void onItemShortClicked(CZIDrawingAction item, MotionEvent event) {
+        showDeleteIcon();
+
+        // If user clicks a text view, show him dialog to edit the text
+        if (item instanceof CZDrawingActionText) {
+            final CZDrawingActionText textItem = (CZDrawingActionText) item;
+            new MaterialDialog.Builder(AnnotationActivity.this)
+                    .title("Change text")
+                    .content("Text Please.")
+                    .inputType(InputType.TYPE_CLASS_TEXT)
+                    .input("Text", textItem.getText(), new MaterialDialog.InputCallback() {
+                        @Override
+                        public void onInput(MaterialDialog dialog, CharSequence input) {
+                            textItem.setText(input.toString());
+                        }
+                    }).show();
+        }
+    }
+
+    private void showDeleteIcon() {
+        mBttDelete.setVisibility(View.VISIBLE);
+    }
+
+    @OnClick(R.id.bttDeleteItem)
+    public void bttDeleteClicked() {
+        // Delete the item
+        CZIDrawingAction selectedItem = mAttacher.getSelectedItem();
+        mPhotoView.deleteItem(selectedItem);
+
+        // Hide delete button
+        mBttDelete.setVisibility(View.GONE);
     }
 }

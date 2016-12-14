@@ -276,7 +276,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
         return mCurrentState;
     }
 
-    public void setmCurrentState(CZState mCurrentState) {
+    public void setCurrentState(CZState mCurrentState) {
         this.mCurrentState = mCurrentState;
     }
 

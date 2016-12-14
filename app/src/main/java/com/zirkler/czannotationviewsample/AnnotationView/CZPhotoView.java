@@ -212,6 +212,17 @@ public class CZPhotoView extends PhotoView {
         this.mDrawnActions = mDrawnActions;
     }
 
+    /**
+     * Deletes an item from the drawing.
+     * @param item The to be deleted item.
+     */
+    public void deleteItem(CZIDrawingAction item) {
+        getDrawnActions().remove(item);
+        attacher.setSelectedItem(null);
+        attacher.setCurrentState(CZAttacher.CZState.READY_TO_DRAW);
+        invalidate();
+    }
+
 
 
     /**
@@ -277,6 +288,12 @@ public class CZPhotoView extends PhotoView {
      * @param context
      */
     public void setBackgroundPicture(Bitmap backgroundBitmap, CZAttacher attacher, Context context, String filename) throws IOException {
+        // Deselect an eventually selected item
+        if (attacher.getSelectedItem() != null) {
+            attacher.getSelectedItem().setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
+            attacher.setSelectedItem(null);
+        }
+
         // Save the background picture on the device
         FileOutputStream fos = context.openFileOutput(filename + "_image", Context.MODE_PRIVATE);
         ObjectOutputStream os = new ObjectOutputStream(fos);
