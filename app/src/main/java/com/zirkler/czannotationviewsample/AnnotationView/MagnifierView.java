@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -15,6 +16,7 @@ public class MagnifierView extends View {
     private Bitmap mBitmap;
     private float mFocusX;
     private float mFocusY;
+    private CZPaint mBorderPaint;
 
     public MagnifierView(Context context) {
         super(context);
@@ -32,6 +34,15 @@ public class MagnifierView extends View {
     }
 
     private void setup(Context context) {
+        mBorderPaint = new CZPaint();
+        mBorderPaint = new CZPaint();
+        mBorderPaint.setAntiAlias(true);
+        mBorderPaint.setColor(Color.parseColor("#ffffff")); // 20% opacity
+        mBorderPaint.setStyle(Paint.Style.STROKE);
+        mBorderPaint.setStrokeJoin(Paint.Join.ROUND);
+        mBorderPaint.setStrokeCap(Paint.Cap.ROUND);
+        mBorderPaint.setStrokeWidth(10);
+
         final ViewTreeObserver viewTreeObserver = getViewTreeObserver();
         viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -63,6 +74,10 @@ public class MagnifierView extends View {
             mCZPhotoView.draw(c);
 
             canvas.drawBitmap(mBitmap, 0, 0, drawBitmapPaint);
+
+            // Draw some border around the magnifier.
+            RectF borderRect = new RectF(0, 0, mBitmap.getWidth(), mBitmap.getHeight());
+            canvas.drawRoundRect(borderRect, 10, 10, mBorderPaint);
         }
     }
 
