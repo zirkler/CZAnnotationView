@@ -60,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/ic_delete_black"
                 android:text="Delete"
-                android:visibility="gone" />
+                android:visibility="invisible" />
             <!--<Button
                 android:id="@+id/bttSaveToFile"
                 android:layout_width="wrap_content"
