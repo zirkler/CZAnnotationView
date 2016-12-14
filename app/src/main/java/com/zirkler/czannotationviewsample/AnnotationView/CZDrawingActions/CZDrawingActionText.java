@@ -163,6 +163,26 @@ public class CZDrawingActionText implements CZIDrawingAction {
         mState = state;
     }
 
+    @Override
+    public boolean canUndo() {
+        return false;
+    }
+
+    @Override
+    public boolean canRedo() {
+        return false;
+    }
+
+    @Override
+    public void undo() {
+
+    }
+
+    @Override
+    public void redo() {
+
+    }
+
     public String getText() {
         return mText;
     }

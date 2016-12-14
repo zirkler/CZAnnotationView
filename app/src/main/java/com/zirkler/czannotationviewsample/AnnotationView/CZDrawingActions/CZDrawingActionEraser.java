@@ -108,6 +108,26 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
+    public boolean canUndo() {
+        return false;
+    }
+
+    @Override
+    public boolean canRedo() {
+        return false;
+    }
+
+    @Override
+    public void undo() {
+
+    }
+
+    @Override
+    public void redo() {
+
+    }
+
+    @Override
     public CZIDrawingAction createInstance(Context context, CZPaint paint) {
         return new CZDrawingActionEraser(context, paint);
     }

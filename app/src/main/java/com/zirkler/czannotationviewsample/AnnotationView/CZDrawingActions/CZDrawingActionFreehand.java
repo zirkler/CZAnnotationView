@@ -159,6 +159,26 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     }
 
     @Override
+    public boolean canUndo() {
+        return false;
+    }
+
+    @Override
+    public boolean canRedo() {
+        return false;
+    }
+
+    @Override
+    public void undo() {
+
+    }
+
+    @Override
+    public void redo() {
+
+    }
+
+    @Override
     public void draw(Canvas canvas, RectF displayRect) {
         mPath = new Path();
 

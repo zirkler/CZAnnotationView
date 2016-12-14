@@ -227,4 +227,24 @@ public class CZDrawingActionLine implements CZIDrawingAction {
             mPaint = mNormalPaint;
         }
     }
+
+    @Override
+    public boolean canUndo() {
+        return false;
+    }
+
+    @Override
+    public boolean canRedo() {
+        return false;
+    }
+
+    @Override
+    public void undo() {
+
+    }
+
+    @Override
+    public void redo() {
+
+    }
 }
