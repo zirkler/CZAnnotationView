@@ -158,7 +158,7 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
             new MaterialDialog.Builder(this)
                     .title("Enter text")
                     .content("Text Please.")
-                    .inputType(InputType.TYPE_CLASS_TEXT)
+                    .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE)
                     .input("Text", "My Annotation Text", new MaterialDialog.InputCallback() {
                         @Override
                         public void onInput(MaterialDialog dialog, CharSequence input) {
@@ -258,7 +258,7 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
             new MaterialDialog.Builder(AnnotationActivity.this)
                     .title("Change text")
                     .content("Text Please.")
-                    .inputType(InputType.TYPE_CLASS_TEXT)
+                    .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE)
                     .input("Text", textItem.getText(), new MaterialDialog.InputCallback() {
                         @Override
                         public void onInput(MaterialDialog dialog, CharSequence input) {

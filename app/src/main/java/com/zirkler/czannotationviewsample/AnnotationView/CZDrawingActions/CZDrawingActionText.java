@@ -74,8 +74,18 @@ public class CZDrawingActionText implements CZIDrawingAction {
 
         if (mCords == null) return;
 
-        float textWidth = mTextPaint.measureText(mText, 0, mText.length());
-        float textHeight = mTextPaint.getTextSize();
+        String[] lines = mText.split("\n");
+        // find widest line
+        float textWidth = 0;
+        for (int i = 0; i < lines.length; i++) {
+            float currTextWidth = mTextPaint.measureText(lines[i], 0, lines[i].length());
+            if (currTextWidth > textWidth) {
+                textWidth = currTextWidth;
+            }
+        }
+
+        float singleLineTextHeight = mTextPaint.getTextSize();
+        float totalTextHeight = singleLineTextHeight * lines.length;
 
         float textPosX = mCords.toAbsCordsAsPoint(displayRect).x;
         float textPosY = mCords.toAbsCordsAsPoint(displayRect).y;
@@ -83,11 +93,15 @@ public class CZDrawingActionText implements CZIDrawingAction {
         // draw a rectangle around the text
         mRect = new RectF(
                     textPosX,
-                    (textPosY - textHeight),
+                    textPosY - singleLineTextHeight + mTextPaint.descent(),
                     textPosX + textWidth,
-                    textPosY);
+                    textPosY + totalTextHeight + mTextPaint.ascent());
+
         canvas.drawRect(mRect, mPaint);
-        canvas.drawText(mText, textPosX, textPosY, mTextPaint);
+
+        for (int i = 0; i < lines.length; i++) {
+            canvas.drawText(lines[i], textPosX , textPosY + singleLineTextHeight * i, mTextPaint);
+        }
     }
 
     @Override

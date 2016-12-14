@@ -30,17 +30,6 @@ import java.util.List;
 
 public class CZPhotoView extends PhotoView {
 
-
-    private static final String INSTANCE_STATE = "cz_annotationview_instance_state";
-    private static final String DRAWN_ACTIONS = "drawn_actions";
-    private static final String SUPER_STATE = "super_state";
-    private static final String BACKGROUND_TEMP_FILE_PATH = "czannotation_bg_tmp";
-    private static final String BACKGROUND_TEMP_FILE_PATH_KEY = "bg_temp_";
-
-    public float mStoredScaleFactor;
-    public float mStoredScaleFocusX;
-    public float mStoredScaleFocusY;
-
     transient public CZAttacher attacher;
     Matrix mConcatMatrix = new Matrix();
     transient private MagnifierView mMagnifierView;
