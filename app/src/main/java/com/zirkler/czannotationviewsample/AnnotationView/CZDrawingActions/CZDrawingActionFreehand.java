@@ -93,6 +93,9 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
 
     @Override
     public void touchMoveRelative(float dx, float dy) {
+
+        // We currently don't want freehand lines to be movable.
+        /*
         if (mState == CZDrawingActionState.ITEM_SELECTED) {
             mStartPoint.setX(mStartPoint.getX() + dx);
             mStartPoint.setY(mStartPoint.getY() + dy);
@@ -102,7 +105,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
                 currCords.setX(currCords.getX() + dx);
                 currCords.setY(currCords.getY() + dy);
             }
-        }
+        }*/
     }
 
     @Override
