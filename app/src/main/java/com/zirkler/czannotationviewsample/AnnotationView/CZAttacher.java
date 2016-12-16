@@ -47,10 +47,17 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
         // User lays a finger on the screen
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
-            // Handle magnifier visibility
+            // Handle magnifier visibility for current drawing action
             if (mPhotoView.getCurrentDrawingAction() != null &&
-                mPhotoView.getCurrentDrawingAction() instanceof CZDrawingActionLine &&
-                mPhotoView.getMagnifierView() != null) {
+                    mPhotoView.getCurrentDrawingAction() instanceof CZDrawingActionLine &&
+                    mPhotoView.getMagnifierView() != null) {
+                mPhotoView.getMagnifierView().setVisibility(View.VISIBLE);
+            }
+
+            // Handle magnifier visibility for selected item
+            if (getSelectedItem() != null &&
+                    getSelectedItem() instanceof CZDrawingActionLine &&
+                    mPhotoView.getMagnifierView() != null) {
                 mPhotoView.getMagnifierView().setVisibility(View.VISIBLE);
             }
 
