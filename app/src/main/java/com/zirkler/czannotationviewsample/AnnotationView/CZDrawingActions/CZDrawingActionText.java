@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 
 import com.zirkler.czannotationviewsample.AnnotationView.CZPaint;
+import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
 import com.zirkler.czannotationviewsample.AnnotationView.CZRelCords;
 
 import java.util.List;
@@ -14,19 +15,24 @@ import java.util.List;
 public class CZDrawingActionText implements CZIDrawingAction {
 
     public static int PADDING = 20;
-    private CZRelCords mCords;
+    protected String mText = "NO TEXT PROVIDED";
+    private CZRelCords mTextPositionCords;
+    private CZRelCords mCordsBevoreMove;
     private CZPaint mTextPaint;
     private CZPaint mNormalPaint;
     private CZPaint mSelectionPaint;
     private CZPaint mRectanglePaint;
     private CZDrawingActionState mState;
     transient private RectF mRect;
-    private String mText = "NO TEXT PROVIDED";
 
     public CZDrawingActionText(Context context, CZPaint textPaint, String text) {
 
         mText = text;
-        mCords = new CZRelCords(0.5f, 0.5f);
+
+        // Place the text view per default in the middle of the screen
+        mTextPositionCords = new CZRelCords(0.5f, 0.5f);
+        mCordsBevoreMove = mTextPositionCords.clone();
+
 
         if (textPaint == null) {
             mTextPaint = new CZPaint();
@@ -64,27 +70,37 @@ public class CZDrawingActionText implements CZIDrawingAction {
     @Override
     public void touchMove(float x, float y) {
         if (mState == CZDrawingActionState.ITEM_DRAWING) {
-            mCords = new CZRelCords(x, y);
+            mTextPositionCords = new CZRelCords(x, y);
         }
     }
 
     @Override
     public void touchMoveRelative(float dx, float dy) {
         if (mState == CZDrawingActionState.ITEM_SELECTED) {
-            mCords.setX(mCords.getX() + dx);
-            mCords.setY(mCords.getY() + dy);
+            mTextPositionCords.setX(mTextPositionCords.getX() + dx);
+            mTextPositionCords.setY(mTextPositionCords.getY() + dy);
         }
     }
 
     @Override
-    public void touchUp(float x, float y) {
-        mCords = new CZRelCords(x, y);
+    public CZUndoRedoAction touchUp(float x, float y) {
+        if (mState == CZDrawingActionState.ITEM_DRAWING) {
+
+        } else if (mState == CZDrawingActionState.ITEM_SELECTED) {
+            TextMoveAction moveAction = new TextMoveAction(
+                this,
+                new CZRelCords(mTextPositionCords.getX(), mTextPositionCords.getY()),
+                new CZRelCords(mCordsBevoreMove.getX(), mCordsBevoreMove.getY()));
+            mCordsBevoreMove = new CZRelCords(mTextPositionCords.getX(), mTextPositionCords.getY());
+            return moveAction;
+        }
+        return null;
     }
 
     @Override
     public void draw(Canvas canvas, RectF displayRect) {
 
-        if (mCords == null) return;
+        if (mTextPositionCords == null) return;
 
         String[] lines = mText.split("\n");
         // find widest line
@@ -99,8 +115,8 @@ public class CZDrawingActionText implements CZIDrawingAction {
         float singleLineTextHeight = mTextPaint.getTextSize();
         float totalTextHeight = singleLineTextHeight * lines.length;
 
-        float textPosX = mCords.toAbsCordsAsPoint(displayRect).x;
-        float textPosY = mCords.toAbsCordsAsPoint(displayRect).y;
+        float textPosX = mTextPositionCords.toAbsCordsAsPoint(displayRect).x;
+        float textPosY = mTextPositionCords.toAbsCordsAsPoint(displayRect).y;
 
         // draw a rectangle around the text
         mRect = new RectF(
@@ -163,32 +179,73 @@ public class CZDrawingActionText implements CZIDrawingAction {
         mState = state;
     }
 
-    @Override
-    public boolean canUndo() {
-        return false;
-    }
-
-    @Override
-    public boolean canRedo() {
-        return false;
-    }
-
-    @Override
-    public void undo() {
-
-    }
-
-    @Override
-    public void redo() {
-
-    }
-
     public String getText() {
         return mText;
     }
 
-    public void setText(String mText) {
-        this.mText = mText;
+    public CZUndoRedoAction setText(String text) {
+        if (!text.equals(mText)) {
+            TextChangeAction textChangeAction = new TextChangeAction(this, mText, text);
+            this.mText = text;
+            return textChangeAction;
+        }
+        return null;
     }
+
+    class TextMoveAction implements CZUndoRedoAction {
+
+        CZDrawingActionText mTextItem;
+        CZRelCords mPrevPosition;
+        CZRelCords mNewPosition;
+
+        TextMoveAction(CZDrawingActionText textItem, CZRelCords newPosition, CZRelCords prevPosition) {
+            mTextItem = textItem;
+            mNewPosition = newPosition;
+            mPrevPosition = prevPosition;
+        }
+
+        @Override
+        public void undo() {
+            if (mPrevPosition != null) {
+                mTextItem.mTextPositionCords = mPrevPosition;
+            }
+
+        }
+
+        @Override
+        public void redo() {
+            if (mNewPosition != null) {
+                mTextItem.mTextPositionCords = mNewPosition;
+            }
+        }
+    }
+
+    class TextChangeAction implements CZUndoRedoAction {
+
+        CZDrawingActionText mTextItem;
+        String mPrevText = "";
+        String mNewText = "";
+
+        TextChangeAction(CZDrawingActionText textItem, String prevText, String newText) {
+            mTextItem = textItem;
+            mPrevText = prevText;
+            mNewText = newText;
+        }
+
+        @Override
+        public void undo() {
+            if (mPrevText == null) {
+                mTextItem.mText = "#N.A.";
+            } else {
+                mTextItem.mText = mPrevText;
+            }
+        }
+
+        @Override
+        public void redo() {
+            mTextItem.mText = mNewText;
+        }
+    }
+
 
 }

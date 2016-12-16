@@ -131,12 +131,20 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
                         itemSelectionChanged(null, mSelectedItem, event);
                     }
                 } else {
-                    // user performed "short-click" event, invoke the itemSelectionChanged event
+                    // The User performed "short-click" event, invoke the itemSelectionChanged event
                     itemSelectionChanged(clickedItem, mSelectedItem, event);
 
                     if (mPhotoView.getItemShortClickListener() != null) {
                         mPhotoView.getItemShortClickListener().onItemShortClicked(clickedItem, event);
                     }
+                }
+            }
+
+            // User had an item selected, now lifted finger
+            if (isOneFinger && mCurrentState == CZState.ITEM_SELECTED) {
+                CZUndoRedoAction action = mSelectedItem.touchUp(relCoords.getX(), relCoords.getY());
+                if (action != null) {
+                    mPhotoView.addRedoableAction(action);
                 }
             }
 
@@ -183,7 +191,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
     public void onDrag(float dx, float dy) {
 
         if (mCurrentState == CZState.ITEM_SELECTED) {
-            // user is dragging an item
+            // user is dragging an selected item
             float relativeDX = dx / getDisplayRect().width();
             float relativeDY = dy / getDisplayRect().height();
             mSelectedItem.touchMoveRelative(relativeDX, relativeDY);

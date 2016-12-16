@@ -10,6 +10,7 @@ import android.graphics.RectF;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPaint;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
 import com.zirkler.czannotationviewsample.AnnotationView.CZRelCords;
+import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -105,12 +106,13 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     }
 
     @Override
-    public void touchUp(float x, float y) {
+    public CZUndoRedoAction touchUp(float x, float y) {
         if (mState == CZDrawingActionState.ITEM_DRAWING) {
             if (mCoords.size() > 0) {
                 mCoords.add(new CZRelCords(x, y));
             }
         }
+        return null;
     }
 
     @Override
@@ -156,26 +158,6 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
         } else if (state == CZDrawingActionState.ITEM_DRAWN){
             mPaint = mNormalPaint;
         }
-    }
-
-    @Override
-    public boolean canUndo() {
-        return false;
-    }
-
-    @Override
-    public boolean canRedo() {
-        return false;
-    }
-
-    @Override
-    public void undo() {
-
-    }
-
-    @Override
-    public void redo() {
-
     }
 
     @Override

@@ -11,6 +11,7 @@ import android.graphics.RectF;
 
 import com.zirkler.czannotationviewsample.AnnotationView.CZPaint;
 import com.zirkler.czannotationviewsample.AnnotationView.CZRelCords;
+import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +62,9 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
-    public void touchUp(float x, float y) {
+    public CZUndoRedoAction touchUp(float x, float y) {
         mCoords.add(new CZRelCords(x, y));
+        return null;
     }
 
     @Override
@@ -104,26 +106,6 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
 
     @Override
     public void setActionState(CZDrawingActionState state) {
-
-    }
-
-    @Override
-    public boolean canUndo() {
-        return false;
-    }
-
-    @Override
-    public boolean canRedo() {
-        return false;
-    }
-
-    @Override
-    public void undo() {
-
-    }
-
-    @Override
-    public void redo() {
 
     }
 

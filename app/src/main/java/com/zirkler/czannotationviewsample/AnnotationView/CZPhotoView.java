@@ -31,10 +31,12 @@ import java.util.List;
 public class CZPhotoView extends PhotoView {
 
     transient public CZAttacher attacher;
+    public List<CZUndoRedoAction> mActionHistory = new ArrayList<>();
+    public List<CZUndoRedoAction> mActionRedoHistory = new ArrayList<>();
+    protected List<CZIDrawingAction> mDrawnActions = new ArrayList<>();
     Matrix mConcatMatrix = new Matrix();
     transient private MagnifierView mMagnifierView;
     private CZIDrawingAction mCurrentDrawingAction;
-    private List<CZIDrawingAction> mDrawnActions = new ArrayList<>();
     private List<CZIDrawingAction> mRedoActions = new ArrayList<>();
     private Canvas mCacheCanvas;
     private Bitmap mForeground;
@@ -78,6 +80,7 @@ public class CZPhotoView extends PhotoView {
 
     private void setup(Context context) {
         mContext = context;
+
 
         mDrawBitmapPaint = new Paint();
         mDrawBitmapPaint.setAntiAlias(true);
@@ -157,24 +160,26 @@ public class CZPhotoView extends PhotoView {
      * Undoes the last drawn thing on the canvas.
      */
     public void undo() {
-        if (mDrawnActions.size() > 0) {
-            CZIDrawingAction lastAction = mDrawnActions.get(mDrawnActions.size() - 1);
-            mDrawnActions.remove(lastAction);
-            mRedoActions.add(lastAction);
-            invalidate();
+        if (mActionHistory.size() >  0) {
+            CZUndoRedoAction action = mActionHistory.get(mActionHistory.size() - 1);
+            action.undo();
+            mActionHistory.remove(action);
+            mActionRedoHistory.add(action);
         }
+        invalidate();
     }
 
     /**
      * Redos the last undone action.
      */
     public void redo() {
-        if (mRedoActions.size() > 0) {
-            CZIDrawingAction lastUndoneAction = mRedoActions.get(mRedoActions.size() - 1);
-            mRedoActions.remove(lastUndoneAction);
-            mDrawnActions.add(lastUndoneAction);
-            invalidate();
+        if (mActionRedoHistory.size() > 0) {
+            CZUndoRedoAction action = mActionRedoHistory.get(mActionRedoHistory.size() - 1);
+            action.redo();
+            mActionRedoHistory.remove(action);
+            mActionHistory.add(action);
         }
+        invalidate();
     }
 
     public CZIDrawingAction getCurrentDrawingAction() {
@@ -192,7 +197,10 @@ public class CZPhotoView extends PhotoView {
         mDrawnActions.add(mCurrentDrawingAction);
         mCurrentDrawingAction = mCurrentDrawingAction.createInstance(getContext(), null);
         mRedoActions.clear();
-        invalidate();
+
+        // add the create action
+        ActionAddDrawingItem actionAddDrawingItem = new ActionAddDrawingItem(mDrawnActions.get(mDrawnActions.size() - 1));
+        addRedoableAction(actionAddDrawingItem);
     }
 
     /**
@@ -220,12 +228,15 @@ public class CZPhotoView extends PhotoView {
      */
     public void deleteItem(CZIDrawingAction item) {
         getDrawnActions().remove(item);
+        item.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
         attacher.setSelectedItem(null);
         attacher.setCurrentState(CZAttacher.CZState.READY_TO_DRAW);
+
+        // Add the remove action
+        ActionRemoveDrawingItem removeAction = new ActionRemoveDrawingItem(item);
+        addRedoableAction(removeAction);
         invalidate();
     }
-
-
 
     /**
      * Returns the initial display rect.
@@ -246,7 +257,7 @@ public class CZPhotoView extends PhotoView {
     public void saveToFile(Context context, String filename) throws IOException {
         FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
         ObjectOutputStream os = new ObjectOutputStream(fos);
-        os.writeObject(getDrawnActions());
+        os.writeObject(mDrawnActions);
         os.close();
         fos.close();
     }
@@ -263,9 +274,8 @@ public class CZPhotoView extends PhotoView {
         FileInputStream fis = context.openFileInput(filename);
         ObjectInputStream is = new ObjectInputStream(fis);
 
-        // load the drawn actions
-        List<CZIDrawingAction> drawnActions = (List<CZIDrawingAction>) is.readObject();
-        mDrawnActions = drawnActions;
+        // Load the drawn actions.
+        mDrawnActions = (List<CZIDrawingAction>) is.readObject();
 
         // load the background image
         fis = context.openFileInput(filename + "_image");
@@ -426,6 +436,63 @@ public class CZPhotoView extends PhotoView {
 
     public void setItemSelectionChangeListener(CZItemSelectionChangeListener mItemSelectionChangeListener) {
         this.mItemSelectionChangeListener = mItemSelectionChangeListener;
+    }
+
+    /**
+     * Adds redoable action, keeps track of action history index.
+     * @param action The to be added action.
+     */
+    public void addRedoableAction(CZUndoRedoAction action) {
+        mActionRedoHistory.clear();
+        mActionHistory.add(action);
+        invalidate();
+    }
+
+    public class ActionAddDrawingItem implements CZUndoRedoAction {
+
+        CZIDrawingAction mDrawingItem;
+
+        ActionAddDrawingItem(CZIDrawingAction drawingItem) {
+            mDrawingItem = drawingItem;
+        }
+
+        @Override
+        public void undo() {
+            // Remove the item.
+            mDrawnActions.remove(mDrawingItem);
+            invalidate();
+        }
+
+        @Override
+        public void redo() {
+            // Add the item back again.
+            mDrawnActions.add(mDrawingItem);
+            invalidate();
+        }
+    }
+
+    public class ActionRemoveDrawingItem implements CZUndoRedoAction {
+
+        CZIDrawingAction mDrawingItem;
+
+        ActionRemoveDrawingItem(CZIDrawingAction drawingItem) {
+            mDrawingItem = drawingItem;
+        }
+
+        @Override
+        public void undo() {
+            // Remove the item.
+            mDrawnActions.add(mDrawingItem);
+            invalidate();
+        }
+
+        @Override
+        public void redo() {
+            // Add the item back again.
+            mDrawnActions.remove(mDrawingItem);
+
+            invalidate();
+        }
     }
 
 }

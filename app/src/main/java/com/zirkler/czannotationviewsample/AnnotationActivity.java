@@ -36,6 +36,7 @@ import com.zirkler.czannotationviewsample.AnnotationView.CZItemSelectionChangeLi
 import com.zirkler.czannotationviewsample.AnnotationView.CZItemShortClickListener;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
 import com.zirkler.czannotationviewsample.AnnotationView.MagnifierView;
+import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -290,15 +291,13 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
                     .input("Text", textItem.getText(), new MaterialDialog.InputCallback() {
                         @Override
                         public void onInput(MaterialDialog dialog, CharSequence input) {
-                            textItem.setText(input.toString());
+                            CZUndoRedoAction action = textItem.setText(input.toString());
+                            mPhotoView.addRedoableAction(action);
                         }
                     }).show();
         }
     }
 
-    private void showDeleteIcon() {
-
-    }
 
     @OnClick(R.id.bttDeleteItem)
     public void bttDeleteClicked() {

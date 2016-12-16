@@ -8,6 +8,7 @@ import android.graphics.RectF;
 
 import com.zirkler.czannotationviewsample.AnnotationView.CZPaint;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
+import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
 import com.zirkler.czannotationviewsample.AnnotationView.CZRelCords;
 
 import java.util.List;
@@ -19,6 +20,8 @@ public class CZDrawingActionLine implements CZIDrawingAction {
     private CZPaint mNormalPaint;
     private CZPaint mSelectionPaint;
     private CZPaint mHandlePaint;
+    transient private CZRelCords mStartCordBeforeMove;
+    transient private CZRelCords mEndCordBeforeMove;
     private CZRelCords mStartCord;
     private CZRelCords mEndCord;
     private CZDrawingActionState mState;
@@ -62,6 +65,11 @@ public class CZDrawingActionLine implements CZIDrawingAction {
     @Override
     public void touchStart(float x, float y, RectF displayRect) {
         CZRelCords touchStartCord = new CZRelCords(x, y);
+
+        if (mStartCord != null && mEndCord != null) {
+            mStartCordBeforeMove = mStartCord.clone();
+            mEndCordBeforeMove = mEndCord.clone();
+        }
 
         if (mState == CZDrawingActionState.ITEM_DRAWING) {
             mStartCord = new CZRelCords(x, y);
@@ -116,10 +124,20 @@ public class CZDrawingActionLine implements CZIDrawingAction {
     }
 
     @Override
-    public void touchUp(float x, float y) {
+    public CZUndoRedoAction touchUp(float x, float y) {
+
+        if (mState == CZDrawingActionState.ITEM_SELECTED) {
+            if (mStartCord != mStartCordBeforeMove || mEndCord != mEndCordBeforeMove) {
+                // User performed some change.
+                LineMoveAction moveAction = new LineMoveAction(this, mStartCord, mEndCord, mStartCordBeforeMove, mEndCordBeforeMove);
+                return moveAction;
+            }
+        }
+
         if (mState == CZDrawingActionState.ITEM_DRAWING) {
             mEndCord = new CZRelCords(x, y);
         }
+        return null;
     }
 
     @Override
@@ -177,6 +195,8 @@ public class CZDrawingActionLine implements CZIDrawingAction {
     @Override
     public boolean checkIfClicked(CZRelCords clickCords, RectF displayRect, Context context) {
 
+        if (mStartCord == null || mEndCord == null) return false;
+
         // Allow to long press on end of line and directly extend / shrink it
         RectF startHandleClickArea = new RectF(
                 mStartCord.toAbsCords(displayRect)[0] - handleRadius / 2,
@@ -201,7 +221,6 @@ public class CZDrawingActionLine implements CZIDrawingAction {
         } else {
             mCurrentlyEditingCords = null;
         }
-
 
         // If distance from point to line is smaller then tolerance, it's a click on this line
         double absoluteDistance = CZPhotoView.pointToSegmentDistance(
@@ -228,23 +247,32 @@ public class CZDrawingActionLine implements CZIDrawingAction {
         }
     }
 
-    @Override
-    public boolean canUndo() {
-        return false;
-    }
+    class LineMoveAction implements CZUndoRedoAction {
 
-    @Override
-    public boolean canRedo() {
-        return false;
-    }
+        CZDrawingActionLine mLine;
+        CZRelCords mNewStart;
+        CZRelCords mNewEnd;
+        CZRelCords mPrevStart;
+        CZRelCords mPrevEnd;
 
-    @Override
-    public void undo() {
+        public LineMoveAction(CZDrawingActionLine line, CZRelCords newStart, CZRelCords newEnd, CZRelCords prevStart, CZRelCords prevEnd) {
+            mLine = line;
+            mNewStart = newStart;
+            mNewEnd = newEnd;
+            mPrevStart = prevStart;
+            mPrevEnd = prevEnd;
+        }
 
-    }
+        @Override
+        public void undo() {
+            mLine.mStartCord = mPrevStart;
+            mLine.mEndCord = mPrevEnd;
+        }
 
-    @Override
-    public void redo() {
-
+        @Override
+        public void redo() {
+            mLine.mStartCord = mNewStart;
+            mLine.mEndCord = mNewEnd;
+        }
     }
 }
