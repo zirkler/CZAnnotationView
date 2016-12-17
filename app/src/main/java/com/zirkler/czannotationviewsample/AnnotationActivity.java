@@ -8,9 +8,13 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.pdf.PdfRenderer;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -23,8 +27,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.folderselector.FileChooserDialog;
 import com.zirkler.czannotationviewsample.AnnotationView.CZAttacher;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZDrawingActionEraser;
 import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZDrawingActionFreehand;
@@ -35,8 +41,8 @@ import com.zirkler.czannotationviewsample.AnnotationView.CZItemLongClickListener
 import com.zirkler.czannotationviewsample.AnnotationView.CZItemSelectionChangeListener;
 import com.zirkler.czannotationviewsample.AnnotationView.CZItemShortClickListener;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
-import com.zirkler.czannotationviewsample.AnnotationView.MagnifierView;
 import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
+import com.zirkler.czannotationviewsample.AnnotationView.MagnifierView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,10 +55,11 @@ import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class AnnotationActivity extends AppCompatActivity implements CZItemShortClickListener, CZItemLongClickListener, CZItemSelectionChangeListener {
+public class AnnotationActivity extends AppCompatActivity implements CZItemShortClickListener, CZItemLongClickListener, CZItemSelectionChangeListener, FileChooserDialog.FileCallback {
 
     public static final String DRAWN_ACTIONS = "drawn_actions";
     public static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 101;
+    private static final int PDF_PICK_RC = 102;
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -155,6 +162,12 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
             changeTool(new CZDrawingActionEraser(this, null));
         } else if (item.getItemId() == R.id.action_pick_background) {
             EasyImage.openChooserWithDocuments(this, "Choose Background Image", 0);
+        } else if (item.getItemId() == R.id.action_pick_background_fromPDF) {
+            new FileChooserDialog.Builder(this)
+                    .initialPath(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath())  // changes initial path, defaults to external storage directory
+                    .extensionsFilter(".pdf")
+                    .tag("optional-identifier")
+                    .show();
         } else if (item.getItemId() == R.id.action_line) {
             changeTool(new CZDrawingActionLine(this, null));
         } else if (item.getItemId() == R.id.action_text) {
@@ -317,6 +330,30 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
         } else {
             mBttDelete.setVisibility(View.VISIBLE);
             // Show the delete button if user has something selected
+        }
+    }
+
+    @Override
+    public void onFileSelection(@NonNull FileChooserDialog dialog, @NonNull File file) {
+        try {
+            PdfRenderer renderer = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                renderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
+
+                PdfRenderer.Page page = renderer.openPage(0);
+                int width = page.getWidth();
+                int height = page.getHeight();
+                Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+                page.close();
+                renderer.close();
+
+                mPhotoView.setBackgroundPicture(bitmap, mAttacher, this, mFileName);
+            } else {
+                Toast.makeText(this, "Sorry, PDF Import only support since Android " + Build.VERSION_CODES.LOLLIPOP, Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }

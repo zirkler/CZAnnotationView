@@ -23,6 +23,11 @@
                 app:showAsAction="ifRoom" />
 
             <item
+                android:id="@+id/action_pick_background_fromPDF"
+                android:title="Pick Background (PDF)"
+                app:showAsAction="ifRoom" />
+
+            <item
                 android:id="@+id/action_line"
                 android:title="Line"
                 app:showAsAction="ifRoom" />

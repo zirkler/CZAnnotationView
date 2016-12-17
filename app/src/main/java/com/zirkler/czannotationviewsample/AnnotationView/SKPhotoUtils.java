@@ -34,7 +34,7 @@ public class SKPhotoUtils {
         values.put(MediaStore.Images.Media.TITLE, title);
         values.put(MediaStore.Images.Media.DISPLAY_NAME, title);
         values.put(MediaStore.Images.Media.DESCRIPTION, description);
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
         // Add the date meta data to ensure the image is added at the front of the gallery
         values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis());
         values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
@@ -48,7 +48,7 @@ public class SKPhotoUtils {
             if (source != null) {
                 OutputStream imageOut = cr.openOutputStream(url);
                 try {
-                    source.compress(Bitmap.CompressFormat.JPEG, 100, imageOut);
+                    source.compress(Bitmap.CompressFormat.PNG, 100, imageOut);
                 } finally {
                     imageOut.close();
                 }
@@ -114,7 +114,7 @@ public class SKPhotoUtils {
 
         try {
             OutputStream thumbOut = cr.openOutputStream(url);
-            thumb.compress(Bitmap.CompressFormat.JPEG, 100, thumbOut);
+            thumb.compress(Bitmap.CompressFormat.PNG, 100, thumbOut);
             thumbOut.close();
             return thumb;
         } catch (FileNotFoundException ex) {
