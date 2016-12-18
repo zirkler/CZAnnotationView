@@ -80,8 +80,6 @@ public class CZPhotoView extends PhotoView {
 
     private void setup(Context context) {
         mContext = context;
-
-
         mDrawBitmapPaint = new Paint();
         mDrawBitmapPaint.setAntiAlias(true);
         mDrawBitmapPaint.setFilterBitmap(true);
@@ -90,16 +88,13 @@ public class CZPhotoView extends PhotoView {
         viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (mForeground == null) {
-                    mForeground = Bitmap.createBitmap(
-                            getWidth(),
-                            getHeight(),
-                            Bitmap.Config.ARGB_8888);
-
-                    mCacheCanvas = new Canvas();
-                    mCacheCanvas.setBitmap(mForeground);
-                    mInitialDisplayRect = getDisplayRect();
-                }
+                mForeground = Bitmap.createBitmap(
+                        getWidth(),
+                        getHeight(),
+                        Bitmap.Config.ARGB_8888);
+                mCacheCanvas = new Canvas();
+                mCacheCanvas.setBitmap(mForeground);
+                mInitialDisplayRect = getDisplayRect();
             }
         });
     }
@@ -146,13 +141,13 @@ public class CZPhotoView extends PhotoView {
 
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
-        postDelayed(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 attacher.update();
                 attacher.onScale(0, 0, 0);
             }
-        }, 1);
+        });
     }
 
     /**
