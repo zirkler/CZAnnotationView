@@ -149,7 +149,8 @@ public class CZPhotoView extends PhotoView {
         postDelayed(new Runnable() {
             @Override
             public void run() {
-                attacher.onScale(0, 0, 0); // just called to force rescaling of drawings
+                attacher.update();
+                attacher.onScale(0, 0, 0);
             }
         }, 1);
     }
