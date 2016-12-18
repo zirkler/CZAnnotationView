@@ -7,8 +7,8 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 
 import com.zirkler.czannotationviewsample.AnnotationView.CZPaint;
-import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
 import com.zirkler.czannotationviewsample.AnnotationView.CZRelCords;
+import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
 
 import java.util.List;
 
@@ -167,6 +167,18 @@ public class CZDrawingActionText implements CZIDrawingAction {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public float getClickDistance(CZRelCords cords, RectF displayRect, Context context) {
+        if (mRect == null) return Float.MAX_VALUE;
+
+        if (mRect.contains(cords.toAbsCordsAsPoint(displayRect).x,
+                cords.toAbsCordsAsPoint(displayRect).y)) {
+            return 0;
+        }
+
+        return Float.MAX_VALUE;
     }
 
     @Override

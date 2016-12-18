@@ -131,7 +131,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             if (touchDownCords.getX() == relCoords.getX() && touchDownCords.getY() == relCoords.getY()) {
 
                 // Search for eventually clicked item
-                CZIDrawingAction clickedItem = searchForSelectedItem(touchDownCords);
+                CZIDrawingAction clickedItem = searchForClickedItem(touchDownCords);
                 if (clickedItem == null) {
                     // User did not perform a "short-click" event.
                     // If there was a selection before, invoke the itemSelectionChanged event
@@ -247,7 +247,7 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
             return true;
         }
 
-        CZIDrawingAction selectedItem = searchForSelectedItem(cords);
+        CZIDrawingAction selectedItem = searchForClickedItem(cords);
         if (selectedItem != null) {
             // User long-clicked on an item.
             itemSelectionChanged(selectedItem, mSelectedItem, event);
@@ -280,12 +280,17 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
      * @param clickCords The coordinates which should be checked if they belong to the clickarea of any of the drawn items.
      * @return Returns the clicked item. If nothing got clicked, this method return null.
      */
-    private CZIDrawingAction searchForSelectedItem(CZRelCords clickCords) {
+    private CZIDrawingAction searchForClickedItem(CZRelCords clickCords) {
         CZIDrawingAction selectedItem = null;
+        float smallestDistance = Float.MAX_VALUE;
         for (int i = 0; i < mPhotoView.getDrawnActions().size(); i++) {
             CZIDrawingAction currAction = mPhotoView.getDrawnActions().get(i);
             if (currAction.checkIfClicked(clickCords, mPhotoView.getInitialDisplayRect(), mContext)) {
-                selectedItem = currAction;
+                float currDistance = currAction.getClickDistance(clickCords, mPhotoView.getInitialDisplayRect(), mContext);
+                if (currDistance < smallestDistance) {
+                    selectedItem = currAction;
+                    smallestDistance = currDistance;
+                }
             }
         }
         return selectedItem;

@@ -8,8 +8,8 @@ import android.graphics.RectF;
 
 import com.zirkler.czannotationviewsample.AnnotationView.CZPaint;
 import com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView;
-import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
 import com.zirkler.czannotationviewsample.AnnotationView.CZRelCords;
+import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
 
 import java.util.List;
 
@@ -235,6 +235,18 @@ public class CZDrawingActionLine implements CZIDrawingAction {
         }
 
         return false;
+    }
+
+    @Override
+    public float getClickDistance(CZRelCords cords, RectF displayRect, Context context) {
+        // If distance from point to line is smaller then tolerance, it's a click on this line
+        double absoluteDistance = CZPhotoView.pointToSegmentDistance(
+                mStartCord.toAbsCordsAsPoint(displayRect),
+                mEndCord.toAbsCordsAsPoint(displayRect),
+                cords.toAbsCordsAsPoint(displayRect));
+
+        double deviceIndependentDistance = absoluteDistance / context.getResources().getDisplayMetrics().density;
+        return (float) deviceIndependentDistance;
     }
 
     @Override

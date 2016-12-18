@@ -154,6 +154,27 @@ public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
     }
 
     @Override
+    public float getClickDistance(CZRelCords cords, RectF displayRect, Context context) {
+        float smallestDistance = Float.MAX_VALUE;
+        for (int i = 0; i < mCoords.size() - 1; i++) {
+
+            // If distance from point to line is smaller then tolerance, it's a click on this line
+            float absoluteDistance = (float) CZPhotoView.pointToSegmentDistance(
+                    mCoords.get(i).toAbsCordsAsPoint(displayRect),
+                    mCoords.get(i + 1).toAbsCordsAsPoint(displayRect),
+                    cords.toAbsCordsAsPoint(displayRect));
+
+            float deviceIndependentDistance = absoluteDistance / context.getResources().getDisplayMetrics().density;
+
+            if (deviceIndependentDistance < smallestDistance) {
+                smallestDistance = deviceIndependentDistance;
+            }
+        }
+
+        return smallestDistance;
+    }
+
+    @Override
     public void setActionState(CZDrawingActionState state) {
         mState = state;
         if (state == CZDrawingActionState.ITEM_SELECTED) {

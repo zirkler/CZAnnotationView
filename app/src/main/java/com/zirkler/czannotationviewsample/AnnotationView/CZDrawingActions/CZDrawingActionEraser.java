@@ -105,6 +105,11 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
+    public float getClickDistance(CZRelCords cords, RectF displayRect, Context context) {
+        return Float.MAX_VALUE;
+    }
+
+    @Override
     public void setActionState(CZDrawingActionState state) {
 
     }

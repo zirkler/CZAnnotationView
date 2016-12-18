@@ -5,8 +5,8 @@ import android.graphics.Canvas;
 import android.graphics.RectF;
 
 import com.zirkler.czannotationviewsample.AnnotationView.CZPaint;
-import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
 import com.zirkler.czannotationviewsample.AnnotationView.CZRelCords;
+import com.zirkler.czannotationviewsample.AnnotationView.CZUndoRedoAction;
 
 import java.io.Serializable;
 import java.util.List;
@@ -34,6 +34,8 @@ public interface CZIDrawingAction extends Serializable {
     boolean isErasable();
 
     boolean checkIfClicked(CZRelCords cords, RectF displayRect, Context context);
+
+    float getClickDistance(CZRelCords cords, RectF displayRect, Context context);
 
     void setActionState(CZDrawingActionState state);
 
