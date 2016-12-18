@@ -62,16 +62,6 @@
                 android:drawableLeft="@drawable/ic_delete_black"
                 android:text="Delete"
                 android:visibility="invisible" />
-            <!--<Button
-                android:id="@+id/bttSaveToFile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Speichern"/>
-            <Button
-                android:id="@+id/bttLoadFromFile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Laden"/>-->
         </android.support.v7.widget.Toolbar>
     </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>
