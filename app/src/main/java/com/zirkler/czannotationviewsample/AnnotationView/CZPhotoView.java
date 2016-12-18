@@ -90,29 +90,27 @@ public class CZPhotoView extends PhotoView {
         viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                Log.i(CZPhotoView.class.getSimpleName(),
-                        "You did something which caused the onGlobalLayout to be called, " +
-                         "this is probably gonna break your zooming. Avoid action that change the global layout, " +
-                         "like adding views to the parent view group.");
+                if (mForeground == null) {
+                    mForeground = Bitmap.createBitmap(
+                            getWidth(),
+                            getHeight(),
+                            Bitmap.Config.ARGB_8888);
+
+                    mCacheCanvas = new Canvas();
+                    mCacheCanvas.setBitmap(mForeground);
+                    mInitialDisplayRect = getDisplayRect();
+                }
             }
         });
-
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         Log.i("asd", String.format("onSizeChanged(int w %d, int h %d, int oldw %d, int oldh %d)", w, h, oldw, oldh));
-        mForeground = Bitmap.createBitmap(
-                getWidth(),
-                getHeight(),
-                Bitmap.Config.ARGB_8888);
-
-        mCacheCanvas = new Canvas();
-        mCacheCanvas.setBitmap(mForeground);
-        mInitialDisplayRect = getDisplayRect();
         invalidate();
     }
+
 
     /**
      * This method performs the actual drawing of the users drawn stuff.

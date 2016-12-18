@@ -319,14 +319,14 @@ public class AnnotationActivity extends AppCompatActivity implements CZItemShort
         mPhotoView.deleteItem(selectedItem);
 
         // Hide delete button
-        mBttDelete.setVisibility(View.INVISIBLE);
+        mBttDelete.setVisibility(View.GONE);
     }
 
     @Override
     public void onItemSelectionChanged(CZIDrawingAction newSelectedItem, CZIDrawingAction prevSelectedItem, MotionEvent event) {
         if (newSelectedItem == null) {
             // Hide the delete button if there is nothing selected to delete.
-            mBttDelete.setVisibility(View.INVISIBLE);
+            mBttDelete.setVisibility(View.GONE);
         } else {
             mBttDelete.setVisibility(View.VISIBLE);
             // Show the delete button if user has something selected

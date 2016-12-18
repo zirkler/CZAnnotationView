@@ -15,6 +15,7 @@ import com.zirkler.czannotationviewsample.AnnotationView.CZDrawingActions.CZIDra
 
 public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListener {
 
+    public float[] lastScale;
     private boolean mEditMode = true;
     private Context mContext;
     private CZPhotoView mPhotoView;
@@ -212,12 +213,16 @@ public class CZAttacher extends PhotoViewAttacher implements CZOnLongClickListen
 
     @Override
     public void onScale(float scaleFactor, float focusX, float focusY) {
+        // Move this away from here.
         // Deselect a maybe selected item
-        mCurrentState = CZState.READY_TO_DRAW;
+        /*mCurrentState = CZState.READY_TO_DRAW;
         if (mSelectedItem != null) {
             mSelectedItem.setActionState(CZIDrawingAction.CZDrawingActionState.ITEM_DRAWN);
             mSelectedItem = null;
-        }
+        }*/
+
+
+        lastScale = new float[]{scaleFactor, focusX, focusY};
 
         // When user scales we forward the scaling information to the matrix in the photoview to adjust the draw canvas.
         super.onScale(scaleFactor, focusX, focusY);
