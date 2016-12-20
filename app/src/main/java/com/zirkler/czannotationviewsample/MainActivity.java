@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -40,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.appbarLayout) AppBarLayout mAppbarLayout;
     List<Drawing> mDrawings;
     private DrawingsAdapter mRecyclerAdapter;
-    private BottomSheetBehavior<View> mBottomSheetBehavior;
     private Drawing mSelectedDrawing;
 
     @Override

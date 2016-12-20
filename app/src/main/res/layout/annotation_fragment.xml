@@ -1,0 +1,55 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.zirkler.czannotationviewsample.AnnotationFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <com.zirkler.czannotationviewsample.AnnotationView.CZPhotoView
+            android:id="@+id/iv_photo"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#fff"/>
+
+        <com.zirkler.czannotationviewsample.AnnotationView.MagnifierView
+            android:id="@+id/magnifierView"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:visibility="invisible" />
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/bottomToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/iv_photo">
+            <Button
+                android:id="@+id/bttUndo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_undo_black"
+                android:text="Undo" />
+            <Button
+                android:id="@+id/bttRedo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_redo_black"
+                android:text="Redo" />
+
+            <Button
+                android:id="@+id/bttDeleteItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_delete_black"
+                android:text="Delete"
+                android:visibility="invisible" />
+        </android.support.v7.widget.Toolbar>
+    </RelativeLayout>
+
+</FrameLayout>

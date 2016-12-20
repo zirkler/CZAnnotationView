@@ -345,7 +345,7 @@ public class CZPhotoView extends PhotoView {
      * @param context The CZPhotoView hosting activity.
      * @return Returns the path of the image file or null if this method failed.
      */
-    public String exportAsJpg(Context context) {
+    public String exportToGallery(Context context) {
         String imagePath = null;
         Bitmap backgroundFullSize = ((BitmapDrawable) getDrawable()).getBitmap();
         Bitmap exportBitmap = backgroundFullSize.copy(Bitmap.Config.ARGB_8888, true);
