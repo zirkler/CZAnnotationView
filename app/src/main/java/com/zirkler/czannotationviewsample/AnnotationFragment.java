@@ -67,6 +67,12 @@ public class AnnotationFragment extends Fragment implements CZItemLongClickListe
         // Required empty public constructor
     }
 
+    public static AnnotationFragment createInstance(String fileName) {
+        AnnotationFragment annotationFragment = new AnnotationFragment();
+        annotationFragment.mFileName = fileName;
+        return annotationFragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -74,6 +80,7 @@ public class AnnotationFragment extends Fragment implements CZItemLongClickListe
         mView = v;
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
+        setup(mFileName);
         return v;
     }
 

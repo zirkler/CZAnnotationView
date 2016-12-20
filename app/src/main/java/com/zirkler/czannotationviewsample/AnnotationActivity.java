@@ -39,15 +39,20 @@ public class AnnotationActivity extends AppCompatActivity implements FileChooser
         ButterKnife.bind(this);
         setupToolbar();
 
-        // Get the Fragment itself
-        mAnnotationFragment = (AnnotationFragment) getSupportFragmentManager().findFragmentById(R.id.annotationFragment);
-
         // Receive the drawing db object and check if a saved file of this drawing already exists
         Drawing drawing = (Drawing) getIntent().getSerializableExtra(MainActivity.DRAWING_KEY);
         mFileName = drawing.getDrawingTitle();
 
-        // Setup the annotation fragment
-        mAnnotationFragment.setup(mFileName);
+        // Add the fragment to the view.
+        if (findViewById(R.id.fragmentContainer) != null) {
+
+            if (savedInstanceState != null) {
+                return;
+            }
+
+            AnnotationFragment mAnnotationFragment = AnnotationFragment.createInstance(mFileName);
+            getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, mAnnotationFragment).commit();
+        }
     }
 
     private void setupToolbar() {
